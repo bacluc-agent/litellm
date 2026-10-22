@@ -3,14 +3,16 @@ litellm:
     deployStandalone: false
     useExisting: true
     secret:
-      usernameKey: POSTGRESQL_USER
-      passwordKey: POSTGRESQL_PASSWORD
-      endpointKey: POSTGRESQL_HOST
+      endpointKey: "endpoint"
   image:
     repository: ghcr.io/berriai/litellm
     pullPolicy: Always
   serviceAccount:
     create: true
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
   proxy_config:
     model_list:
       - model_name: vshn/*
@@ -55,6 +57,13 @@ litellm:
   replicaCount: 2
   serviceMonitor:
     enabled: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
   resources:
     limits:
       cpu: 2
@@ -66,10 +75,13 @@ litellm:
     hooks:
       helm:
         enabled: true
+    securityContext:
+      allowPrivilegeEscalation: false
     resources:
       limits:
         memory: 4Gi
       requests:
         memory: 2Gi
-
+enableVSHNPostgreSQL: false
+generatePostgresSecret: true
 env: {}

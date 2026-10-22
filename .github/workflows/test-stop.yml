@@ -13,7 +13,7 @@ jobs:
       name: Helm Chart stop
       run: |
         cp "${KUBECONFIG}" ".github-ci.kubeconfig"
-        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm uninstall '${CI_PR_HEAD_REF_SLUG}' --namespace '${NAMESPACE}' --kubeconfig /tmp/github-ci.kubeconfig"
+        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm uninstall 'test' --namespace '${NAMESPACE}' --kubeconfig /tmp/github-ci.kubeconfig"
 name: Stop test
 "on":
   delete: {}
