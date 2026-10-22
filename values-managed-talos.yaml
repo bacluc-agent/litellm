@@ -1,0 +1,25 @@
+litellm:
+  ingress:
+    className: "cilium"
+    annotations:
+      haproxy.router.openshift.io/timeout: "20m"
+    hosts:
+      - host: litellm-proxy.apps.c-managed-talos-lab-rma-0.vshnmanaged.net
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+          - path: /metrics
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: nonexistent-service
+                port:
+                  number: 9999
+    tls:
+      - hosts:
+          - litellm-proxy.apps.c-managed-talos-lab-rma-0.vshnmanaged.net
+        secretName: litellm-ingress
+  environmentSecrets:
+    - runtime-secrets
+enableVSHNPostgreSQL: false
+generatePostgresSecret: true

@@ -3,9 +3,7 @@ litellm:
     deployStandalone: false
     useExisting: true
     secret:
-      usernameKey: POSTGRESQL_USER
-      passwordKey: POSTGRESQL_PASSWORD
-      endpointKey: POSTGRESQL_HOST
+      endpointKey: "endpoint"
   image:
     repository: ghcr.io/berriai/litellm
     pullPolicy: Always
@@ -71,5 +69,6 @@ litellm:
         memory: 4Gi
       requests:
         memory: 2Gi
-
+enableVSHNPostgreSQL: true
+generatePostgresSecret: false
 env: {}

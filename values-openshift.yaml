@@ -1,0 +1,8 @@
+litellm:
+  db:
+    deployStandalone: false
+    useExisting: true
+    secret:
+      usernameKey: POSTGRESQL_USER
+      passwordKey: POSTGRESQL_PASSWORD
+      endpointKey: POSTGRESQL_HOST
