@@ -29,7 +29,7 @@ jobs:
 
         cp "${KUBECONFIG}" ".github-ci.kubeconfig"
         sudo chmod -R o+w $(printf '%s' "$PWD")
-        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm dependency update '/data'; VALUES=(); for f in values.yaml values-test.yaml values-managed-talos.yaml vars.yaml; do if [ -f "/data/\$f" ]; then VALUES+=("--values" "/data/\$f"); fi; done; HELM_DIFF_USE_UPGRADE_DRY_RUN=true /bin/helm diff upgrade 'test' '/data' --namespace '${NAMESPACE}' "\${VALUES[@]}" --allow-unreleased"
+        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm dependency update '/data'; VALUES=(); for f in values.yaml values-test.yaml values-managed-talos.yaml vars.yaml; do if [ -f "/data/\$f" ]; then VALUES+=("--values" "/data/\$f"); fi; done; HELM_DIFF_USE_UPGRADE_DRY_RUN=true /bin/helm diff upgrade 'test' '/data' --namespace '${NAMESPACE}' "\${VALUES[@]}" --allow-unreleased --kubeconfig /tmp/github-ci.kubeconfig"
     - env:
         NEWLINE: |2+
 
@@ -46,7 +46,7 @@ jobs:
 
         cp "${KUBECONFIG}" ".github-ci.kubeconfig"
         sudo chmod -R o+w $(printf '%s' "$PWD")
-        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm dependency update /data; VALUES=(); for f in values.yaml values-test.yaml values-managed-talos.yaml vars.yaml; do if [ -f "/data/\$f" ]; then VALUES+=("--values" "/data/\$f"); fi; done; /bin/helm upgrade --install 'test' /data --namespace '${NAMESPACE}' "\${VALUES[@]}""
+        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm dependency update /data; VALUES=(); for f in values.yaml values-test.yaml values-managed-talos.yaml vars.yaml; do if [ -f "/data/\$f" ]; then VALUES+=("--values" "/data/\$f"); fi; done; /bin/helm upgrade --install 'test' /data --namespace '${NAMESPACE}' "\${VALUES[@]}" --kubeconfig /tmp/github-ci.kubeconfig"
 name: Build and deploy to test
 "on":
   push: {}
