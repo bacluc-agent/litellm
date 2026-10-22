@@ -18,6 +18,7 @@ jobs:
         VARS_JSON: "${{ toJson(vars) }}"
       name: Helm Chart preview
       run: |
+        set -x
         ENVV=$(jq -n --arg p 'APPFLOW_' 'env | with_entries(select(.key | startswith($p)))')
         VARS=$(jq -n --arg p 'APPFLOW_' 'env.VARS_JSON | fromjson? // {} |  with_entries(select(.key | startswith($p)))')
         SECRETS=$(jq -n --arg p 'APPFLOW_' 'env.SECRETS_JSON | fromjson? // {} | with_entries(select(.key | startswith($p)))')
