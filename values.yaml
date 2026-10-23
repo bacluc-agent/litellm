@@ -14,12 +14,6 @@ litellm:
     seccompProfile:
       type: RuntimeDefault
   proxy_config:
-    model_list:
-      - model_name: vshn/*
-        litellm_params:
-          model: "openai/*"
-          api_base: https://us-ai.corp.vshn.net/api
-          api_key: "os.environ/VSHN_US_AI_API_KEY"
     litellm_settings:
       require_auth_for_metrics_endpoint: false
       success_callback: ["otel"]
@@ -51,6 +45,8 @@ litellm:
       - hosts:
         - litellm-proxy.apps.cloudscale-lpg-2.appuio.cloud
         secretName: litellm-ingress
+  environmentConfigMaps:
+    - runtime-env
   environmentSecrets:
     - runtime-secrets
 
