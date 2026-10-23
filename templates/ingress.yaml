@@ -1,0 +1,54 @@
+{{- if .Values.ingress.enabled -}}
+{{- $subChartValues:= dict
+  "Values" .Values.litellm
+  "Chart" .Chart
+  "Release" .Release }}
+{{- $fullName := include "litellm.fullname" $subChartValues -}}
+{{- $svcPort := .Values.litellm.service.port -}}
+{{- if .Values.ingress.className }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+{{- end }}
+{{- $hosts := .Values.ingress.hosts }}
+{{- if (not .Values.env.INGRESS_HOSTS | empty) }}
+{{- $hosts = (splitList "," .Values.env.INGRESS_HOSTS )}}
+{{- end }}
+{{- $Values := .Values}}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- with .Values.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  tls:
+    - hosts:
+        {{- range $hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .Values.ingress.secretName }}
+  rules:
+    {{- range $hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+          {{- range $Values.ingress.paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+{{- end }}

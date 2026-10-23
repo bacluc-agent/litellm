@@ -7,6 +7,8 @@ litellm:
   image:
     repository: ghcr.io/berriai/litellm
     pullPolicy: Always
+  ingress:
+    enabled: false
   serviceAccount:
     create: true
   podSecurityContext:
@@ -23,28 +25,6 @@ litellm:
       OTEL_EXPORTER: "console"
       LITELLM_DISABLE_NO_REDIS_WARNING: true
   masterkeySecretName: "runtime-secrets"
-  ingress:
-    enabled: true
-    className: "openshift-default"
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-production
-      haproxy.router.openshift.io/timeout: "20m"
-    hosts:
-      - host: litellm-proxy.apps.cloudscale-lpg-2.appuio.cloud
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
-          - path: /metrics
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: nonexistent-service
-                port:
-                  number: 9999
-    tls:
-      - hosts:
-        - litellm-proxy.apps.cloudscale-lpg-2.appuio.cloud
-        secretName: litellm-ingress
   environmentConfigMaps:
     - runtime-env
   environmentSecrets:
@@ -78,6 +58,23 @@ litellm:
         memory: 4Gi
       requests:
         memory: 2Gi
+ingress:
+  enabled: true
+  className: "openshift-default"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    haproxy.router.openshift.io/timeout: "20m"
+  paths:
+    - path: /
+      pathType: ImplementationSpecific
+    - path: /metrics
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: nonexistent-service
+          port:
+            number: 9999
+  secretName: litellm-ingress
 enableVSHNPostgreSQL: false
 generatePostgresSecret: true
 env: {}
