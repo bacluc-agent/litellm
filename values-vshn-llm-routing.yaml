@@ -1,4 +1,7 @@
 litellm:
+  litellm_settings:
+    check_provider_endpoint: true
+
   proxy_config:
     model_list:
       - model_name: "opencode/*"
@@ -27,7 +30,6 @@ litellm:
             x-opencode-session: litellm
 
     router_settings:
-      enable_model_discovery: true
       fallbacks:
         - "opencode/*":
             - "opencode-fallback/*"
