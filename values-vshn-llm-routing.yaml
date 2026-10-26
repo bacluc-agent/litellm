@@ -4,6 +4,9 @@ litellm:
     check_provider_endpoint: true
 
   proxy_config:
+    litellm_settings:
+      check_provider_endpoint: true
+
     model_list:
       - model_name: "opencode/*"
         litellm_params:
