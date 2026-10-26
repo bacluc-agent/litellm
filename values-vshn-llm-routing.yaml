@@ -27,6 +27,7 @@ litellm:
             x-opencode-session: litellm
 
     router_settings:
+      enable_model_discovery: true
       fallbacks:
         - "opencode/*":
             - "opencode-fallback/*"
