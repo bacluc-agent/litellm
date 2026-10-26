@@ -24,6 +24,7 @@ litellm:
     environment_variables:
       OTEL_EXPORTER: "console"
       LITELLM_DISABLE_NO_REDIS_WARNING: true
+    model_list: []
     router_settings: {}
   masterkeySecretName: "runtime-secrets"
   environmentConfigMaps:

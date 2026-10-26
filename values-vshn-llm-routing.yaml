@@ -1,6 +1,7 @@
 litellm:
   proxyConfigMap:
     create: false
+    name: litellm-config
 
   proxy_config:
     litellm_settings:
