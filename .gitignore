@@ -3,6 +3,9 @@
 *.prov
 charts/
 
+# Local environment values
+.env
+
 # IDE / OS
 .idea
 .vscode
