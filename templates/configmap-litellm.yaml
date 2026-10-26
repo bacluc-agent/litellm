@@ -1,5 +1,9 @@
 {{- /*If you need templating logic for your model list.*/}}
 {{- if .Values.wrapperProxyConfigMap.create }}
+{{- $subChartValues:= dict
+  "Values" .Values.litellm
+  "Chart" .Chart
+  "Release" .Release }}
 {{- $config := deepCopy .Values.litellm.proxy_config }}
 {{- if and .Values.litellm.redis.enabled (dig "coordination" "enabled" true .Values.litellm.redis) }}
 {{- $generalSettings := (get $config "general_settings") | default dict }}
@@ -10,49 +14,44 @@
 {{- $coordinationRedis = dict "sentinel_nodes" (list $sentinelNode) "service_name" (default "mymaster" .Values.litellm.redis.sentinel.masterSet) "password" "os.environ/REDIS_PASSWORD" }}
 {{- end }}
 {{- $_ := set $generalSettings "coordination_redis" $coordinationRedis }}
-{{- $_ := set $config "general_settings" $generalSettings }}
+{{- $_ = set $config "general_settings" $generalSettings }}
 {{- end }}
 {{- end }}
+{{- $modelList := $config.model_list | default list }}
+{{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
+{{- $modelList = append $modelList (dict
+  "model_name" (printf "opencode/%s" $model)
+  "litellm_params" (dict
+    "model" (printf "openai/%s" $model)
+    "api_base" "os.environ/OPENCODE_API_BASE"
+    "api_key" "os.environ/OPENCODE_1_API_KEY"
+    "extra_headers" (dict "x-opencode-session" "litellm"))) }}
+{{- $modelList = append $modelList (dict
+  "model_name" (printf "opencode/%s" $model)
+  "litellm_params" (dict
+    "model" (printf "openai/%s" $model)
+    "api_base" "os.environ/OPENCODE_API_BASE"
+    "api_key" "os.environ/OPENCODE_2_API_KEY"
+    "extra_headers" (dict "x-opencode-session" "litellm"))) }}
+{{- $modelList = append $modelList (dict
+  "model_name" (printf "opencode-fallback/%s" $model)
+  "litellm_params" (dict
+    "model" (printf "openai/%s" $model)
+    "api_base" "https://opencode.ai/inference/openai/v1"
+    "api_key" "os.environ/OPENCODE_3_API_KEY"
+    "extra_headers" (dict "x-opencode-session" "litellm"))) }}
+{{- end }}
+{{- $_ := set $config "model_list" $modelList }}
+{{- $fallbacks := $config.router_settings.fallbacks | default list }}
+{{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
+{{- $fallbacks = append $fallbacks (dict (printf "opencode/%s" $model) (list (printf "opencode-fallback/%s" $model))) }}
+{{- end }}
+{{- $_ = set $config.router_settings "fallbacks" $fallbacks }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "litellm.fullname" . }}-config
+  name: {{ include "litellm.fullname" $subChartValues }}-config
 data:
   config.yaml: |
-    generalSettings:
-      {{ $config.general_settings | toYaml | indent 6 }}
-    model_list:
-      {{ $config.model_list | toYaml | indent 6 }}
-
-{{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
-      - model_name: "opencode/{{ $model }}"
-        litellm_params:
-          model: "openai/{{ $model }}"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_1_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-      # for api key rotation without downtime
-      - model_name: "opencode/{{ $model }}"
-        litellm_params:
-          model: "openai/{{ $model }}"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_2_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-      - model_name: "opencode-fallback/{{ $model }}"
-        litellm_params:
-          model: "openai/{{ $model }}"
-          api_base: "https://opencode.ai/inference/openai/v1"
-          api_key: "os.environ/OPENCODE_3_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-{{- end }}
-    router_settings:
-      fallbacks:
-        {{ $config.router_settings.fallbacks | toYaml | indent 6 }}
-
-      model_group_alias:
+{{ $config | toYaml | indent 4 }}
 {{- end }}

@@ -7,37 +7,6 @@ litellm:
       # it seems litellm strips the whole path of api_base for model discovery and sends the request to <host>/models
       # this is unusable.
       check_provider_endpoint: false
-
-    model_list:
-      - model_name: "opencode/*"
-        litellm_params:
-          model: "openai/*"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_1_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-      # for api key rotation without downtime
-      - model_name: "opencode/*"
-        litellm_params:
-          model: "openai/*"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_2_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-      - model_name: "opencode-fallback/*"
-        litellm_params:
-          model: "openai/*"
-          api_base: "https://opencode.ai/inference/openai/v1"
-          api_key: "os.environ/OPENCODE_3_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-    router_settings:
-      fallbacks:
-        - "opencode/*":
-            - "opencode-fallback/*"
 wrapperProxyConfigMap:
   create: true
   opencodeModels:
