@@ -1,32 +1,48 @@
 litellm:
+  proxyConfigMap:
+    create: false
+    # workaround until model discovery of litellm works
+    name: litellm-config
+
   proxy_config:
-    model_list:
-      - model_name: "opencode/*"
-        litellm_params:
-          model: "openai/*"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_1_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-      # for api key rotation without downtime
-      - model_name: "opencode/*"
-        litellm_params:
-          model: "openai/*"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_2_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-      - model_name: "opencode-fallback/*"
-        litellm_params:
-          model: "openai/*"
-          api_base: "https://opencode.ai/inference/openai/v1"
-          api_key: "os.environ/OPENCODE_3_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
-
-    router_settings:
-      fallbacks:
-        - "opencode/*":
-            - "opencode-fallback/*"
+    litellm_settings:
+      # it seems litellm strips the whole path of api_base for model discovery and sends the request to <host>/models
+      # this is unusable.
+      check_provider_endpoint: false
+    model_list: []
+wrapperProxyConfigMap:
+  create: true
+  opencodeModels:
+    #doesn't work yet, only support Responses api
+#    - grok-4.7
+    - glm-5.3-flash
+    - glm-5.3
+    - glm-5.2
+    #they don't work yet, only support Responses api
+#    - gpt-6-luna
+#    - gpt-5.6-luna
+    - claude-haiku-5-5
+    #doesn't work yet, doesn't support completions api.
+#    - gemini-4-argon
+    - kimi-k3.1-pro
+    - kimi-k3
+    - kimi-k2.7-code
+    - longcat-2.0
+    - step-5-preview
+    - beam-free
+    - mimo-v2.6-flash
+    - mimo-v2.6-pro
+    - mimo-v2.5
+    - mimo-v2.5-pro
+    - minimax-m3.1-flash
+    - minimax-m3
+    #doesn't work yet, needs consent to train on data.
+#    - muse-spark-1.3-contributor
+#    - muse-spark-1.2-contributor
+    - qwen3.8-max
+    - qwen3.8-flash
+    - qwen3.7-plus
+    - deepseek-v4.1-flash
+    - deepseek-v4-pro
+    - hy4-preview
+    - hy3
