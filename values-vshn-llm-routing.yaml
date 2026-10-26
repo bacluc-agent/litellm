@@ -7,7 +7,7 @@ litellm:
     model_list:
       - model_name: "opencode/*"
         litellm_params:
-          model: "openai/*"
+          model: "opencode_go/*"
           api_base: "os.environ/OPENCODE_API_BASE"
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
@@ -16,7 +16,7 @@ litellm:
       # for api key rotation without downtime
       - model_name: "opencode/*"
         litellm_params:
-          model: "openai/*"
+          model: "opencode_go/*"
           api_base: "os.environ/OPENCODE_API_BASE"
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
@@ -24,7 +24,7 @@ litellm:
 
       - model_name: "opencode-fallback/*"
         litellm_params:
-          model: "openai/*"
+          model: "opencode_go/*"
           api_base: "https://opencode.ai/inference/openai/v1"
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
