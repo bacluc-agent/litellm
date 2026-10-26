@@ -5,6 +5,7 @@ charts/
 
 # Local environment values
 .env
+local-test-env.yaml
 
 # IDE / OS
 .idea
