@@ -1,13 +1,17 @@
 litellm:
+  proxyConfigMap:
+    create: true
 
   proxy_config:
     litellm_settings:
-      check_provider_endpoint: true
+      # it seems litellm strips the whole path of api_base for model discovery and sends the request to <host>/models
+      # this is unusable.
+      check_provider_endpoint: false
 
     model_list:
       - model_name: "opencode/*"
         litellm_params:
-          model: "opencode_go/*"
+          model: "openai/*"
           api_base: "os.environ/OPENCODE_API_BASE"
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
@@ -34,3 +38,13 @@ litellm:
       fallbacks:
         - "opencode/*":
             - "opencode-fallback/*"
+      model_group_alias:
+        chat:
+          model: opencode/*
+          hidden: false
+        coder:
+          model: opencode/*
+          hidden: false
+        fast:
+          model: opencode/*
+          hidden: false
