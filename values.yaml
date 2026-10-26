@@ -75,8 +75,7 @@ ingress:
           port:
             number: 9999
   secretName: litellm-ingress
-wrapperProxyConfigMap:
-  create: false
 enableVSHNPostgreSQL: false
 generatePostgresSecret: true
-env: {}
+wrapperProxyConfigMap:
+  create: false
