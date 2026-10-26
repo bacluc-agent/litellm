@@ -1,5 +1,6 @@
 litellm:
-  litellm_settings:
+
+  general_settings:
     check_provider_endpoint: true
 
   proxy_config:
