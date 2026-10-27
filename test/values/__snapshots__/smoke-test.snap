@@ -19,10 +19,10 @@ kind: ServiceAccount
 metadata:
   name: test-litellm
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
 ---
@@ -89,10 +89,10 @@ kind: Service
 metadata:
   name: test-litellm
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -111,10 +111,10 @@ kind: Deployment
 metadata:
   name: test-litellm
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 2
@@ -127,10 +127,10 @@ spec:
       annotations:
         checksum/config: 739b58f182e7a423ef89ab93269705aececf55c1e52b79802803e90b8aa7a1db
       labels:
-        helm.sh/chart: litellm-1.106.2
+        helm.sh/chart: '###DYNAMIC_FIELD###'
         app.kubernetes.io/name: litellm
         app.kubernetes.io/instance: test
-        app.kubernetes.io/version: "1.106.2"
+        app.kubernetes.io/version: "###DYNAMIC_FIELD###"
         app.kubernetes.io/managed-by: Helm
     spec:
       serviceAccountName: test-litellm
@@ -306,10 +306,10 @@ kind: ServiceMonitor
 metadata:
   name: test-litellm
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
@@ -347,10 +347,10 @@ kind: Pod
 metadata:
   name: "test-litellm-test-connection"
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
   annotations:
     "helm.sh/hook": test
@@ -378,10 +378,10 @@ kind: Pod
 metadata:
   name: "test-litellm-env-test"
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
   annotations:
     "helm.sh/hook": test
@@ -427,10 +427,10 @@ kind: Pod
 metadata:
   name: "test-litellm-test-servicemonitor"
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
   annotations:
     "helm.sh/hook": test
@@ -451,10 +451,10 @@ kind: Job
 metadata:
   name: test-litellm-migrations
   labels:
-    helm.sh/chart: litellm-1.106.2
+    helm.sh/chart: '###DYNAMIC_FIELD###'
     app.kubernetes.io/name: litellm
     app.kubernetes.io/instance: test
-    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/version: "###DYNAMIC_FIELD###"
     app.kubernetes.io/managed-by: Helm
   annotations:
     argocd.argoproj.io/hook: PreSync
@@ -467,10 +467,10 @@ spec:
   template:
     metadata:
       labels:
-        helm.sh/chart: litellm-1.106.2
+        helm.sh/chart: '###DYNAMIC_FIELD###'
         app.kubernetes.io/name: litellm
         app.kubernetes.io/instance: test
-        app.kubernetes.io/version: "1.106.2"
+        app.kubernetes.io/version: "###DYNAMIC_FIELD###"
         app.kubernetes.io/managed-by: Helm
       annotations:
     spec:
