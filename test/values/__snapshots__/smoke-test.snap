@@ -1,0 +1,525 @@
+# chartsnap: snapshot_version=v3
+---
+# Source: llm-proxy/templates/pdb.yaml
+# litell helm chart requires to configure litellm.pdb for a pdb to be rendered
+# I prefer to have this tied to replicaCount to avoid having a pdb for a deployment with only 1 replica.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zk-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: litellm
+---
+# Source: llm-proxy/charts/litellm/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-litellm
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: llm-proxy/templates/postgres-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres
+stringData:
+  username:
+  password:
+  endpoint:
+---
+# Source: llm-proxy/templates/runtime-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: runtime-secrets
+stringData:
+  masterkey: ""
+  INGRESS_HOSTS: "a,b"
+---
+# Source: llm-proxy/charts/litellm/templates/configmap-litellm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-litellm-config
+data:
+  config.yaml: |
+    environment_variables:
+      LITELLM_DISABLE_NO_REDIS_WARNING: true
+      OTEL_EXPORTER: console
+    general_settings:
+      master_key: os.environ/PROXY_MASTER_KEY
+    litellm_settings:
+      callbacks:
+      - prometheus
+      require_auth_for_metrics_endpoint: false
+      success_callback:
+      - otel
+    model_list:
+    - litellm_params:
+        api_key: eXaMpLeOnLy
+        model: gpt-3.5-turbo
+      model_name: gpt-3.5-turbo
+    - litellm_params:
+        api_base: https://exampleopenaiendpoint-production.up.railway.app/
+        api_key: fake-key
+        model: openai/fake
+      model_name: fake-openai-endpoint
+    router_settings: {}
+---
+# Source: llm-proxy/templates/runtime-env.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: runtime-env
+data:
+  OPENCODE_API_BASE: "https://opencode.ai/zen/go/v1"
+---
+# Source: llm-proxy/charts/litellm/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-litellm
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4000
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+---
+# Source: llm-proxy/charts/litellm/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-litellm
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: litellm
+      app.kubernetes.io/instance: test
+  template:
+    metadata:
+      annotations:
+        checksum/config: 739b58f182e7a423ef89ab93269705aececf55c1e52b79802803e90b8aa7a1db
+      labels:
+        helm.sh/chart: litellm-1.106.2
+        app.kubernetes.io/name: litellm
+        app.kubernetes.io/instance: test
+        app.kubernetes.io/version: "1.106.2"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: test-litellm
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: litellm
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        image: "ghcr.io/berriai/litellm:1.106.2"
+        imagePullPolicy: Always
+        env:
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "4000"
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: username
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: endpoint
+        - name: DATABASE_NAME
+          value: litellm
+        - name: DATABASE_URL
+          value: "postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)"
+        - name: PROXY_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: runtime-secrets
+              key: masterkey
+        - name: LITELLM_LOG
+          value: "INFO"
+        # Schema updates are owned by the dedicated migrations Job; skip
+        # the proxy's startup `prisma db push` so N replicas don't race
+        # one DB on every rollout. Placed last (after envVars and
+        # extraEnvVars) so this override can't be silently shadowed by a
+        # user-supplied DISABLE_SCHEMA_UPDATE under last-wins duplicate-env
+        # semantics — same pattern the migrations Job uses.
+        - name: DISABLE_SCHEMA_UPDATE
+          value: "true"
+        envFrom:
+        - secretRef:
+            name: runtime-secrets
+        - configMapRef:
+            name: runtime-env
+        args:
+        - --config
+        - /etc/litellm/config.yaml
+        ports:
+        - name: http
+          containerPort: 4000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: "/health/liveliness"
+            port: "http"
+          initialDelaySeconds: 0
+          periodSeconds: 15
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: "/health/readiness"
+            port: "http"
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: "/health/readiness"
+            port: "http"
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+        resources:
+          limits:
+            cpu: 2
+            memory: 3Gi
+          requests:
+            cpu: 10m
+            memory: 1000Mi
+        volumeMounts:
+        - name: litellm-config
+          mountPath: /etc/litellm/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: litellm-config
+        configMap:
+          name: test-litellm-config
+          items:
+          - key: config.yaml
+            path: "config.yaml"
+      terminationGracePeriodSeconds: 90
+---
+# Source: llm-proxy/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-litellm
+  labels:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    haproxy.router.openshift.io/timeout: 20m
+    kubernetes.io/ingress.class: openshift-default
+spec:
+  ingressClassName: openshift-default
+  tls:
+  - hosts:
+    - "a"
+    - "b"
+    secretName: litellm-ingress
+  rules:
+  - host: "a"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: test-litellm
+            port:
+              number: 4000
+      - path: /metrics
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: test-litellm
+            port:
+              number: 4000
+  - host: "b"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: test-litellm
+            port:
+              number: 4000
+      - path: /metrics
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: test-litellm
+            port:
+              number: 4000
+---
+# Source: llm-proxy/charts/litellm/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: test-litellm
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: litellm
+      app.kubernetes.io/instance: test
+  namespaceSelector:
+    matchNames:
+    # if not set, use the release namespace
+    - "rabbitmq"
+  endpoints:
+  - port: http
+    path: /metrics/
+    interval: 15s
+    scrapeTimeout: 10s
+    scheme: http
+---
+# Source: llm-proxy/templates/postgres-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-delete-policy: "hook-succeeded"
+    helm.sh/hook-weight: "-5"
+stringData:
+  username:
+  password:
+  endpoint:
+---
+# Source: llm-proxy/charts/litellm/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "test-litellm-test-connection"
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: wget
+    image: busybox
+    command: ['sh', '-c']
+    args:
+    - |
+      # Wait for a bit to allow the service to be ready
+      sleep 10
+      # Try multiple times with a delay between attempts
+      for i in $(seq 1 30); do
+        wget -T 5 "test-litellm:4000/health/readiness" && exit 0
+        echo "Attempt $i failed, waiting..."
+        sleep 2
+      done
+      exit 1
+  restartPolicy: Never
+---
+# Source: llm-proxy/charts/litellm/templates/tests/test-env-vars.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "test-litellm-env-test"
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: test
+    image: busybox
+    command: ['sh', '-c']
+    args:
+    - |
+      # Test DD_ENV
+      if [ "$DD_ENV" != "dev_helm" ]; then
+        echo "❌ Environment variable DD_ENV mismatch. Expected: dev_helm, Got: $DD_ENV"
+        exit 1
+      fi
+      echo "✅ Environment variable DD_ENV matches expected value: $DD_ENV"
+
+      # Test DD_SERVICE
+      if [ "$DD_SERVICE" != "litellm" ]; then
+        echo "❌ Environment variable DD_SERVICE mismatch. Expected: litellm, Got: $DD_SERVICE"
+        exit 1
+      fi
+      echo "✅ Environment variable DD_SERVICE matches expected value: $DD_SERVICE"
+
+      # Test USE_DDTRACE
+      if [ "$USE_DDTRACE" != "true" ]; then
+        echo "❌ Environment variable USE_DDTRACE mismatch. Expected: true, Got: $USE_DDTRACE"
+        exit 1
+      fi
+      echo "✅ Environment variable USE_DDTRACE matches expected value: $USE_DDTRACE"
+    env:
+    - name: DD_ENV
+      value:
+    - name: DD_SERVICE
+      value:
+    - name: USE_DDTRACE
+      value:
+  restartPolicy: Never
+---
+# Source: llm-proxy/charts/litellm/templates/tests/test-servicemonitor.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "test-litellm-test-servicemonitor"
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: test
+    image: docker.io/bitnamilegacy/kubectl:1.29.2-debian-12-r3
+    command: ['sh', '-c']
+    args:
+    - "set -e\necho \"\U0001F50D Testing ServiceMonitor configuration...\"\n\n# Check if ServiceMonitor exists\nif ! kubectl get servicemonitor test-litellm -n rabbitmq &>/dev/null; then\n  echo \"❌ ServiceMonitor not found\"\n  exit 1\nfi\necho \"✅ ServiceMonitor exists\"\n\n# Get ServiceMonitor YAML\nSM=$(kubectl get servicemonitor test-litellm -n rabbitmq -o yaml)\n\n# Test endpoint configuration\nENDPOINT_PORT=$(echo \"$SM\" | grep -A 5 \"endpoints:\" | grep \"port:\" | awk '{print $2}')\nif [ \"$ENDPOINT_PORT\" != \"http\" ]; then\n  echo \"❌ Endpoint port mismatch. Expected: http, Got: $ENDPOINT_PORT\"\n  exit 1\nfi\necho \"✅ Endpoint port is correctly set to: $ENDPOINT_PORT\"\n\n# Test endpoint path\nENDPOINT_PATH=$(echo \"$SM\" | grep -A 5 \"endpoints:\" | grep \"path:\" | awk '{print $2}')\nif [ \"$ENDPOINT_PATH\" != \"/metrics/\" ]; then\n  echo \"❌ Endpoint path mismatch. Expected: /metrics/, Got: $ENDPOINT_PATH\"\n  exit 1\nfi\necho \"✅ Endpoint path is correctly set to: $ENDPOINT_PATH\"\n\n# Test interval\nINTERVAL=$(echo \"$SM\" | grep \"interval:\" | awk '{print $2}')\nif [ \"$INTERVAL\" != \"15s\" ]; then\n  echo \"❌ Interval mismatch. Expected: 15s, Got: $INTERVAL\"\n  exit 1\nfi\necho \"✅ Interval is correctly set to: $INTERVAL\"\n\n# Test scrapeTimeout\nTIMEOUT=$(echo \"$SM\" | grep \"scrapeTimeout:\" | awk '{print $2}')\nif [ \"$TIMEOUT\" != \"10s\" ]; then\n  echo \"❌ ScrapeTimeout mismatch. Expected: 10s, Got: $TIMEOUT\"\n  exit 1\nfi\necho \"✅ ScrapeTimeout is correctly set to: $TIMEOUT\"\n\n# Test scheme\nSCHEME=$(echo \"$SM\" | grep \"scheme:\" | awk '{print $2}')\nif [ \"$SCHEME\" != \"http\" ]; then\n  echo \"❌ Scheme mismatch. Expected: http, Got: $SCHEME\"\n  exit 1\nfi\necho \"✅ Scheme is correctly set to: $SCHEME\"\n# Test default namespace selector (should be release namespace)\nif ! echo \"$SM\" | grep -A 5 \"namespaceSelector:\" | grep -q \"rabbitmq\"; then\n  echo \"❌ Release namespace rabbitmq not found in namespaceSelector\"\n  exit 1\nfi\necho \"✅ Default namespace selector set to release namespace: rabbitmq\"\n\n# Test selector labels match the service\necho \"\U0001F50D Checking selector labels match service...\"\nSVC_LABELS=$(kubectl get svc test-litellm -n rabbitmq -o jsonpath='{.metadata.labels}')\necho \"Service labels: $SVC_LABELS\"\necho \"✅ Selector labels validation passed\"\n\necho \"\"\necho \"\U0001F389 All ServiceMonitor tests passed successfully!\"\n"
+  serviceAccountName: test-litellm
+  restartPolicy: Never
+---
+# Source: llm-proxy/charts/litellm/templates/migrations-job.yaml
+# This job runs the Prisma migrations for the LiteLLM DB.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-litellm-migrations
+  labels:
+    helm.sh/chart: litellm-1.106.2
+    app.kubernetes.io/name: litellm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.106.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+    helm.sh/hook-weight: "1"
+    checksum/config: 9c7816a210b5d6e326743e8e8c362d4e7c274d6566ffed97bd318876af02f949
+spec:
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: litellm-1.106.2
+        app.kubernetes.io/name: litellm
+        app.kubernetes.io/instance: test
+        app.kubernetes.io/version: "1.106.2"
+        app.kubernetes.io/managed-by: Helm
+      annotations:
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: prisma-migrations
+        image: "ghcr.io/berriai/litellm:1.106.2"
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        command: ["python", "litellm/proxy/prisma_migration.py"]
+        workingDir: "/app"
+        env:
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: username
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: endpoint
+        - name: DATABASE_NAME
+          value: litellm
+        - name: DATABASE_URL
+          value: "postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)"
+        - name: DISABLE_SCHEMA_UPDATE
+          value: "false" # always run the migration from the Helm PreSync hook, override the value set
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            memory: 2Gi
+      restartPolicy: OnFailure
+  ttlSecondsAfterFinished: 120
+  backoffLimit: 4
+  activeDeadlineSeconds: 1800
