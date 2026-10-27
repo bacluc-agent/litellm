@@ -1,2 +1,5 @@
+litellm:
+  image:
+    tag: test
 env:
   INGRESS_HOSTS: a,b

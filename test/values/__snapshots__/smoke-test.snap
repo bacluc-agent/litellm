@@ -147,8 +147,8 @@ spec:
             - ALL
           seccompProfile:
             type: RuntimeDefault
-        image: "ghcr.io/berriai/litellm:1.106.2"
-        imagePullPolicy: Always
+        image: "ghcr.io/berriai/litellm:test"
+        imagePullPolicy: IfNotPresent
         env:
         - name: HOST
           value: "0.0.0.0"
@@ -462,7 +462,7 @@ metadata:
     helm.sh/hook: "pre-install,pre-upgrade"
     helm.sh/hook-delete-policy: "before-hook-creation"
     helm.sh/hook-weight: "1"
-    checksum/config: 9c7816a210b5d6e326743e8e8c362d4e7c274d6566ffed97bd318876af02f949
+    checksum/config: d7811e6d315cf6b71dbadff601a854d6cf5d41e16f4676f5d6af2a638028dc45
 spec:
   template:
     metadata:
@@ -481,8 +481,8 @@ spec:
           type: RuntimeDefault
       containers:
       - name: prisma-migrations
-        image: "ghcr.io/berriai/litellm:1.106.2"
-        imagePullPolicy: Always
+        image: "ghcr.io/berriai/litellm:test"
+        imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
