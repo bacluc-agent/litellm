@@ -43,6 +43,7 @@ exec docker run --rm \
   "$HELM_IMAGE:$HELM_VERSION" -eu -c '
     mkdir -p "$HOME" "$HELM_CONFIG_HOME" "$HELM_CACHE_HOME" "$HELM_DATA_HOME" "$HELM_PLUGINS"
     helm plugin install "$CHARTSNAP_URL" --version "$CHARTSNAP_VERSION" --verify=false
+    helm dep build .
     exec helm chartsnap \
       --chart . \
       --values test/values \
