@@ -1,3 +1,4 @@
+# Mask litellm subchart version labels so version bumps (appVersion / litellm-helm dependency) don't churn smoke-test.snap; regenerate with ./scripts/chartsnap.sh --update
 dynamicFields:
   - kind: ServiceAccount
     jsonPath:
