@@ -29,7 +29,7 @@ jobs:
 
         cp "${KUBECONFIG}" ".github-ci.kubeconfig"
         sudo chmod -R o+w $(printf '%s' "$PWD")
-        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm dependency update /data; /bin/helm upgrade --install 'prod' /data --namespace '${NAMESPACE}' --values '/data/values.yaml' --values '/data/values-managed-talos.yaml' --values '/data/values-vshn-llm-routing.yaml' --values '/data/vars.yaml' --kubeconfig /tmp/github-ci.kubeconfig"
+        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm dependency update /data; /bin/helm upgrade --install 'prod' /data --namespace '${NAMESPACE}' --values '/data/values.yaml' --values '/data/values-managed-talos.yaml' --values '/data/values-vshn-llm-routing.yaml' --values '/data/values-vshn-managed-talos-prod.yaml' --values '/data/vars.yaml' --kubeconfig /tmp/github-ci.kubeconfig"
 name: Deploy to prod
 "on":
   workflow_dispatch: {}

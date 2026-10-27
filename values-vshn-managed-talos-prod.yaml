@@ -1,0 +1,3 @@
+litellm:
+  db:
+    database: litellm_prod
