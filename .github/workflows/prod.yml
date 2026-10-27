@@ -6,6 +6,8 @@ jobs:
   build:
     environment: prod
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/setup
