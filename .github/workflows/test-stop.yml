@@ -16,5 +16,4 @@ jobs:
         docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm uninstall 'test' --namespace '${NAMESPACE}' --kubeconfig /tmp/github-ci.kubeconfig"
 name: Stop test
 "on":
-  delete: {}
   workflow_dispatch: {}
