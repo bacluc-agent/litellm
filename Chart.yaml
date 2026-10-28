@@ -11,7 +11,6 @@ appVersion: "1.106.2@sha256:7294b90f868c5c38c99b83021c7ba46f9b439e95f8e32964c925
 
 dependencies:
   - name: litellm-helm
-    # renovate: datasource=docker depName=litellm-helm
     version: 1.106.2
     repository: oci://ghcr.io/berriai
     alias: litellm
