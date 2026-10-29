@@ -13,7 +13,7 @@
         "/^values\\.yaml$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\n\\s*[A-Za-z_]+[=:]\\s*\"?(?<currentValue>[0-9][\\w.-]*)(@(?<currentDigest>[a-z0-9:]*))\"?"
+        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\n\\s*[A-Za-z_]+[=:]\\s*\"?(?<currentValue>v?[0-9][\\w.-]*)(@(?<currentDigest>[a-z0-9:]*))\"?"
       ],
     }
   ],
