@@ -47,18 +47,49 @@ wrapperProxyConfigMap:
     - hy4-preview
     - hy3
   # model_info rows copied from the opencode_go entries in
-  # https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+  # https://raw.githubusercontent.com/BerriAI/litellm/refs/heads/main/model_prices_and_context_window.json
   # so costs, context limits and capabilities are known without routing through the
-  # opencode_go provider. Re-sync when models are added or upstream values change.
+  # opencode_go provider, which is stale in this pinned litellm. Numbers are written as
+  # plain decimals (not scientific notation) for readability; the configmap template
+  # re-inserts a mantissa dot where go-yaml's float rendering would otherwise produce
+  # strings for YAML 1.1 parsers (litellm/pyyaml). litellm_provider/source: excluded (openai/ prefix is hardcoded);
+  # supported_endpoints: excluded (upstream declares /v1/messages, chart serves /v1/chat/completions).
+  # Regenerate after model changes or upstream updates and review with git diff:
+  #   curl -fsSL https://raw.githubusercontent.com/BerriAI/litellm/refs/heads/main/model_prices_and_context_window.json -o mp.json
+  #   sed -n "s/^  # | //p" values-vshn-llm-routing.yaml | python3
+  # | import decimal, json
+  # | fmt = lambda s: ("true" if s is True else "false") if isinstance(s, bool) else (format(decimal.Decimal(repr(s)), "f") if isinstance(s, float) else str(s))
+  # | mp = json.load(open("mp.json"))
+  # | models = "glm-5.3-flash glm-5.3 glm-5.2 claude-haiku-5-5 kimi-k3.1-pro kimi-k3 kimi-k2.7-code longcat-2.0 step-5-preview beam-free mimo-v2.6-flash mimo-v2.6-pro mimo-v2.5 mimo-v2.5-pro minimax-m3.1-flash minimax-m3 qwen3.8-max qwen3.8-flash qwen3.7-plus deepseek-v4.1-flash deepseek-v4-pro hy4-preview hy3".split()
+  # | allowed = ["mode", "max_input_tokens", "max_output_tokens", "input_cost_per_token", "output_cost_per_token", "cache_read_input_token_cost", "cache_creation_input_token_cost", "tiered_pricing", "supports_function_calling", "supports_reasoning", "supports_vision"]
+  # | path = "values-vshn-llm-routing.yaml"
+  # | lines = open(path).read().splitlines()
+  # | start = lines.index("  opencodeModelInfo:")
+  # | out = lines[:start] + ["  opencodeModelInfo:"]
+  # | for m in models:
+  # |     e = mp["opencode_go/" + m]  # litellm_provider/source: excluded (chart hardcodes openai/); supported_endpoints: excluded (upstream declares /v1/messages, chart serves /v1/chat/completions)
+  # |     out.append("    %s:" % m)
+  # |     out.append("      pricing_provider: opencode_go")
+  # |     for k in allowed:
+  # |         if k not in e:
+  # |             continue
+  # |         if k == "tiered_pricing":
+  # |             out.append("      tiered_pricing:")
+  # |             for t in e[k]:
+  # |                 out.append("        - range: [%s, %s]" % (t["range"][0], t["range"][1]))
+  # |                 out += ["          %s: %s" % (kk, fmt(t[kk])) for kk in ["input_cost_per_token", "output_cost_per_token", "cache_read_input_token_cost", "cache_creation_input_token_cost"] if kk in t]
+  # |         else:
+  # |             out.append("      %s: %s" % (k, fmt(e[k])))
+  # | open(path, "w").write("\n".join(out) + "\n")
   opencodeModelInfo:
     glm-5.3-flash:
       pricing_provider: opencode_go
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 1.5e-7
-      output_cost_per_token: 5e-7
-      cache_read_input_token_cost: 3e-8
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.0000005
+      cache_read_input_token_cost: 0.00000003
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -67,9 +98,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 1.4e-6
-      output_cost_per_token: 4.4e-6
-      cache_read_input_token_cost: 2.6e-7
+      input_cost_per_token: 0.0000014
+      output_cost_per_token: 0.0000044
+      cache_read_input_token_cost: 0.00000026
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false
@@ -78,9 +109,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 1.4e-6
-      output_cost_per_token: 4.4e-6
-      cache_read_input_token_cost: 2.6e-7
+      input_cost_per_token: 0.0000014
+      output_cost_per_token: 0.0000044
+      cache_read_input_token_cost: 0.00000026
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false
@@ -89,21 +120,21 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 128000
-      input_cost_per_token: 1.0000000000000001e-7
-      output_cost_per_token: 5e-7
-      cache_read_input_token_cost: 1e-8
-      cache_creation_input_token_cost: 1.25e-7
+      input_cost_per_token: 0.00000010000000000000001
+      output_cost_per_token: 0.0000005
+      cache_read_input_token_cost: 0.00000001
+      cache_creation_input_token_cost: 0.000000125
       tiered_pricing:
         - range: [0, 100000]
-          cache_creation_input_token_cost: 1.25e-7
-          cache_read_input_token_cost: 1e-8
-          input_cost_per_token: 1.0000000000000001e-7
-          output_cost_per_token: 5e-7
+          input_cost_per_token: 0.00000010000000000000001
+          output_cost_per_token: 0.0000005
+          cache_read_input_token_cost: 0.00000001
+          cache_creation_input_token_cost: 0.000000125
         - range: [100000, 1000000]
-          cache_creation_input_token_cost: 6.25e-7
-          cache_read_input_token_cost: 5.0000000000000004e-8
-          input_cost_per_token: 5e-7
-          output_cost_per_token: 2.5e-6
+          input_cost_per_token: 0.0000005
+          output_cost_per_token: 0.0000025
+          cache_read_input_token_cost: 0.000000050000000000000004
+          cache_creation_input_token_cost: 0.000000625
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -112,10 +143,10 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1048576
       max_output_tokens: 131072
-      input_cost_per_token: 2e-6
-      output_cost_per_token: 1e-5
-      cache_read_input_token_cost: 2.0000000000000002e-7
-      cache_creation_input_token_cost: 2e-6
+      input_cost_per_token: 0.000002
+      output_cost_per_token: 0.00001
+      cache_read_input_token_cost: 0.00000020000000000000002
+      cache_creation_input_token_cost: 0.000002
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -124,10 +155,10 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1048576
       max_output_tokens: 131072
-      input_cost_per_token: 3e-6
-      output_cost_per_token: 1.5e-5
-      cache_read_input_token_cost: 3e-7
-      cache_creation_input_token_cost: 3e-6
+      input_cost_per_token: 0.000003
+      output_cost_per_token: 0.000015
+      cache_read_input_token_cost: 0.0000003
+      cache_creation_input_token_cost: 0.000003
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -136,9 +167,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 262144
       max_output_tokens: 262144
-      input_cost_per_token: 9.499999999999999e-7
-      output_cost_per_token: 4e-6
-      cache_read_input_token_cost: 1.9e-7
+      input_cost_per_token: 0.0000009499999999999999
+      output_cost_per_token: 0.000004
+      cache_read_input_token_cost: 0.00000019
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -147,9 +178,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 3e-7
-      output_cost_per_token: 1.2e-6
-      cache_read_input_token_cost: 6e-9
+      input_cost_per_token: 0.0000003
+      output_cost_per_token: 0.0000012
+      cache_read_input_token_cost: 0.000000006
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false
@@ -158,9 +189,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 65536
-      input_cost_per_token: 1e-6
-      output_cost_per_token: 2.7e-6
-      cache_read_input_token_cost: 1.0000000000000001e-7
+      input_cost_per_token: 0.000001
+      output_cost_per_token: 0.0000027
+      cache_read_input_token_cost: 0.00000010000000000000001
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -180,9 +211,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1048576
       max_output_tokens: 131072
-      input_cost_per_token: 1.4e-7
-      output_cost_per_token: 2.8e-7
-      cache_read_input_token_cost: 2.8e-9
+      input_cost_per_token: 0.00000014
+      output_cost_per_token: 0.00000028
+      cache_read_input_token_cost: 0.0000000028
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -191,9 +222,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1048576
       max_output_tokens: 131072
-      input_cost_per_token: 4.35e-7
-      output_cost_per_token: 8.7e-7
-      cache_read_input_token_cost: 3.625e-9
+      input_cost_per_token: 0.000000435
+      output_cost_per_token: 0.00000087
+      cache_read_input_token_cost: 0.000000003625
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -202,9 +233,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 128000
-      input_cost_per_token: 1.4e-7
-      output_cost_per_token: 2.8e-7
-      cache_read_input_token_cost: 2.8e-9
+      input_cost_per_token: 0.00000014
+      output_cost_per_token: 0.00000028
+      cache_read_input_token_cost: 0.0000000028
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -213,9 +244,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1048576
       max_output_tokens: 128000
-      input_cost_per_token: 4.35e-7
-      output_cost_per_token: 8.7e-7
-      cache_read_input_token_cost: 3.625e-9
+      input_cost_per_token: 0.000000435
+      output_cost_per_token: 0.00000087
+      cache_read_input_token_cost: 0.000000003625
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false
@@ -224,9 +255,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 512000
-      input_cost_per_token: 1.5e-7
-      output_cost_per_token: 6e-7
-      cache_read_input_token_cost: 1.5e-8
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.0000006
+      cache_read_input_token_cost: 0.000000015
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -235,9 +266,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 3e-7
-      output_cost_per_token: 1.2e-6
-      cache_read_input_token_cost: 6e-8
+      input_cost_per_token: 0.0000003
+      output_cost_per_token: 0.0000012
+      cache_read_input_token_cost: 0.00000006
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -246,10 +277,10 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 2e-6
-      output_cost_per_token: 6e-6
-      cache_read_input_token_cost: 2.5e-7
-      cache_creation_input_token_cost: 2.5e-6
+      input_cost_per_token: 0.000002
+      output_cost_per_token: 0.000006
+      cache_read_input_token_cost: 0.00000025
+      cache_creation_input_token_cost: 0.0000025
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -258,10 +289,10 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 131072
-      input_cost_per_token: 1.5e-7
-      output_cost_per_token: 4.6999999999999995e-7
-      cache_read_input_token_cost: 1.6e-8
-      cache_creation_input_token_cost: 2.0000000000000002e-7
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.00000046999999999999995
+      cache_read_input_token_cost: 0.000000016
+      cache_creation_input_token_cost: 0.00000020000000000000002
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -270,21 +301,21 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 65536
-      input_cost_per_token: 4.0000000000000003e-7
-      output_cost_per_token: 1.6000000000000001e-6
-      cache_read_input_token_cost: 4e-8
-      cache_creation_input_token_cost: 5e-7
+      input_cost_per_token: 0.00000040000000000000003
+      output_cost_per_token: 0.0000016000000000000001
+      cache_read_input_token_cost: 0.00000004
+      cache_creation_input_token_cost: 0.0000005
       tiered_pricing:
         - range: [0, 256000]
-          cache_creation_input_token_cost: 5e-7
-          cache_read_input_token_cost: 4e-8
-          input_cost_per_token: 4.0000000000000003e-7
-          output_cost_per_token: 1.6000000000000001e-6
+          input_cost_per_token: 0.00000040000000000000003
+          output_cost_per_token: 0.0000016000000000000001
+          cache_read_input_token_cost: 0.00000004
+          cache_creation_input_token_cost: 0.0000005
         - range: [256000, 1000000]
-          cache_creation_input_token_cost: 1.5e-6
-          cache_read_input_token_cost: 1.2e-7
-          input_cost_per_token: 1.2e-6
-          output_cost_per_token: 4.8e-6
+          input_cost_per_token: 0.0000012
+          output_cost_per_token: 0.0000048
+          cache_read_input_token_cost: 0.00000012
+          cache_creation_input_token_cost: 0.0000015
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -293,9 +324,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 384000
-      input_cost_per_token: 3e-7
-      output_cost_per_token: 1.2e-6
-      cache_read_input_token_cost: 6e-9
+      input_cost_per_token: 0.0000003
+      output_cost_per_token: 0.0000012
+      cache_read_input_token_cost: 0.000000006
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: true
@@ -304,9 +335,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1000000
       max_output_tokens: 384000
-      input_cost_per_token: 1.32e-6
-      output_cost_per_token: 3.96e-6
-      cache_read_input_token_cost: 4.4e-8
+      input_cost_per_token: 0.00000132
+      output_cost_per_token: 0.00000396
+      cache_read_input_token_cost: 0.000000044
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false
@@ -315,9 +346,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 1024000
       max_output_tokens: 64000
-      input_cost_per_token: 8.34e-7
-      output_cost_per_token: 2.501e-6
-      cache_read_input_token_cost: 4.2000000000000006e-8
+      input_cost_per_token: 0.000000834
+      output_cost_per_token: 0.000002501
+      cache_read_input_token_cost: 0.000000042000000000000006
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false
@@ -326,9 +357,9 @@ wrapperProxyConfigMap:
       mode: chat
       max_input_tokens: 192000
       max_output_tokens: 128000
-      input_cost_per_token: 1.4e-7
-      output_cost_per_token: 5.8e-7
-      cache_read_input_token_cost: 3.5e-8
+      input_cost_per_token: 0.00000014
+      output_cost_per_token: 0.00000058
+      cache_read_input_token_cost: 0.000000035
       supports_function_calling: true
       supports_reasoning: true
       supports_vision: false

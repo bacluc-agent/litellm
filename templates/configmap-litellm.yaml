@@ -37,7 +37,9 @@ data:
 {{- end }}
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
 {{- $modelInfo := get $.Values.wrapperProxyConfigMap.opencodeModelInfo $model | default dict }}
-{{- $modelInfoYaml := regexReplaceAll "(?m)(: )(-?[0-9]+)e(-?[0-9]+)" (toYaml $modelInfo) "${1}${2}.0e${3}" }}
+{{- /* go-yaml renders floats like 0.00000003 as `3e-08`, which YAML 1.1 parsers
+  (litellm uses pyyaml) reject; insert a `.0` mantissa dot so it parses as a number. */}}
+{{- $modelInfoYaml := regexReplaceAll "(?m)(: )(-?[0-9]+)[eE]([+-]?)([0-9]+)" (toYaml $modelInfo) "${1}${2}.0e${3}${4}" }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
