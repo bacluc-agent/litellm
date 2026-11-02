@@ -35,7 +35,17 @@ data:
 {{- with $config.model_list }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- $modelInfo := dict }}
+{{- if hasKey .Values.wrapperProxyConfigMap "modelInfo" }}
+{{- $modelInfo = index .Values.wrapperProxyConfigMap "modelInfo" }}
+{{- end }}
+{{- /* toYaml serializes floats like 3e-08 (no mantissa dot) which YAML 1.1 parsers read back as strings; add the dot back and normalize zero costs to 0.0 */}}
+{{- $floatFix := list ": ([0-9]+)e([+-][0-9]+)" ": $1.0e$2" "(?m)^(input_cost_per_token|output_cost_per_token|cache_read_input_token_cost|cache_creation_input_token_cost): 0$" "$1: 0.0" }}
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
+{{- $info := dict }}
+{{- if hasKey $modelInfo $model }}
+{{- $info = index $modelInfo $model }}
+{{- end }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
@@ -43,6 +53,13 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+        {{- with $info }}
+{{- $raw := toYaml . }}
+{{- $raw = regexReplaceAll (index $floatFix 0) $raw (index $floatFix 1) }}
+{{- $raw = regexReplaceAll (index $floatFix 2) $raw (index $floatFix 3) }}
+        model_info:
+{{ indent 10 $raw }}
+        {{- end }}
 
       # for api key rotation without downtime
       - model_name: "opencode/{{ $model }}"
@@ -52,6 +69,13 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+        {{- with $info }}
+{{- $raw := toYaml . }}
+{{- $raw = regexReplaceAll (index $floatFix 0) $raw (index $floatFix 1) }}
+{{- $raw = regexReplaceAll (index $floatFix 2) $raw (index $floatFix 3) }}
+        model_info:
+{{ indent 10 $raw }}
+        {{- end }}
 
       - model_name: "opencode-fallback/{{ $model }}"
         litellm_params:
@@ -60,6 +84,13 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+        {{- with $info }}
+{{- $raw := toYaml . }}
+{{- $raw = regexReplaceAll (index $floatFix 0) $raw (index $floatFix 1) }}
+{{- $raw = regexReplaceAll (index $floatFix 2) $raw (index $floatFix 3) }}
+        model_info:
+{{ indent 10 $raw }}
+        {{- end }}
 {{- end }}
     router_settings:
 {{- with $config.router_settings }}
