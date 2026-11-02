@@ -46,3 +46,289 @@ wrapperProxyConfigMap:
     - deepseek-v4-pro
     - hy4-preview
     - hy3
+  # model_info rows copied from the opencode_go entries in
+  # https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+  # so costs, context limits and capabilities are known without routing through the
+  # opencode_go provider. Re-sync when models are added or upstream values change.
+  opencodeModelInfo:
+    glm-5.3-flash:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 1.5e-7
+      output_cost_per_token: 5e-7
+      cache_read_input_token_cost: 3e-8
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    glm-5.3:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 1.4e-6
+      output_cost_per_token: 4.4e-6
+      cache_read_input_token_cost: 2.6e-7
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    glm-5.2:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 1.4e-6
+      output_cost_per_token: 4.4e-6
+      cache_read_input_token_cost: 2.6e-7
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    claude-haiku-5-5:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 128000
+      input_cost_per_token: 1.0000000000000001e-7
+      output_cost_per_token: 5e-7
+      cache_read_input_token_cost: 1e-8
+      cache_creation_input_token_cost: 1.25e-7
+      tiered_pricing:
+        - range: [0, 100000]
+          cache_creation_input_token_cost: 1.25e-7
+          cache_read_input_token_cost: 1e-8
+          input_cost_per_token: 1.0000000000000001e-7
+          output_cost_per_token: 5e-7
+        - range: [100000, 1000000]
+          cache_creation_input_token_cost: 6.25e-7
+          cache_read_input_token_cost: 5.0000000000000004e-8
+          input_cost_per_token: 5e-7
+          output_cost_per_token: 2.5e-6
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    kimi-k3.1-pro:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 131072
+      input_cost_per_token: 2e-6
+      output_cost_per_token: 1e-5
+      cache_read_input_token_cost: 2.0000000000000002e-7
+      cache_creation_input_token_cost: 2e-6
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    kimi-k3:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 131072
+      input_cost_per_token: 3e-6
+      output_cost_per_token: 1.5e-5
+      cache_read_input_token_cost: 3e-7
+      cache_creation_input_token_cost: 3e-6
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    kimi-k2.7-code:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 262144
+      max_output_tokens: 262144
+      input_cost_per_token: 9.499999999999999e-7
+      output_cost_per_token: 4e-6
+      cache_read_input_token_cost: 1.9e-7
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    longcat-2.0:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 3e-7
+      output_cost_per_token: 1.2e-6
+      cache_read_input_token_cost: 6e-9
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    step-5-preview:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 65536
+      input_cost_per_token: 1e-6
+      output_cost_per_token: 2.7e-6
+      cache_read_input_token_cost: 1.0000000000000001e-7
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    beam-free:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 131072
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      cache_read_input_token_cost: 0
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    mimo-v2.6-flash:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 131072
+      input_cost_per_token: 1.4e-7
+      output_cost_per_token: 2.8e-7
+      cache_read_input_token_cost: 2.8e-9
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    mimo-v2.6-pro:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 131072
+      input_cost_per_token: 4.35e-7
+      output_cost_per_token: 8.7e-7
+      cache_read_input_token_cost: 3.625e-9
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    mimo-v2.5:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 128000
+      input_cost_per_token: 1.4e-7
+      output_cost_per_token: 2.8e-7
+      cache_read_input_token_cost: 2.8e-9
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    mimo-v2.5-pro:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 128000
+      input_cost_per_token: 4.35e-7
+      output_cost_per_token: 8.7e-7
+      cache_read_input_token_cost: 3.625e-9
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    minimax-m3.1-flash:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 512000
+      input_cost_per_token: 1.5e-7
+      output_cost_per_token: 6e-7
+      cache_read_input_token_cost: 1.5e-8
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    minimax-m3:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 3e-7
+      output_cost_per_token: 1.2e-6
+      cache_read_input_token_cost: 6e-8
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    qwen3.8-max:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 2e-6
+      output_cost_per_token: 6e-6
+      cache_read_input_token_cost: 2.5e-7
+      cache_creation_input_token_cost: 2.5e-6
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    qwen3.8-flash:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 131072
+      input_cost_per_token: 1.5e-7
+      output_cost_per_token: 4.6999999999999995e-7
+      cache_read_input_token_cost: 1.6e-8
+      cache_creation_input_token_cost: 2.0000000000000002e-7
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    qwen3.7-plus:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 65536
+      input_cost_per_token: 4.0000000000000003e-7
+      output_cost_per_token: 1.6000000000000001e-6
+      cache_read_input_token_cost: 4e-8
+      cache_creation_input_token_cost: 5e-7
+      tiered_pricing:
+        - range: [0, 256000]
+          cache_creation_input_token_cost: 5e-7
+          cache_read_input_token_cost: 4e-8
+          input_cost_per_token: 4.0000000000000003e-7
+          output_cost_per_token: 1.6000000000000001e-6
+        - range: [256000, 1000000]
+          cache_creation_input_token_cost: 1.5e-6
+          cache_read_input_token_cost: 1.2e-7
+          input_cost_per_token: 1.2e-6
+          output_cost_per_token: 4.8e-6
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    deepseek-v4.1-flash:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 384000
+      input_cost_per_token: 3e-7
+      output_cost_per_token: 1.2e-6
+      cache_read_input_token_cost: 6e-9
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: true
+    deepseek-v4-pro:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1000000
+      max_output_tokens: 384000
+      input_cost_per_token: 1.32e-6
+      output_cost_per_token: 3.96e-6
+      cache_read_input_token_cost: 4.4e-8
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    hy4-preview:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1024000
+      max_output_tokens: 64000
+      input_cost_per_token: 8.34e-7
+      output_cost_per_token: 2.501e-6
+      cache_read_input_token_cost: 4.2000000000000006e-8
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
+    hy3:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 192000
+      max_output_tokens: 128000
+      input_cost_per_token: 1.4e-7
+      output_cost_per_token: 5.8e-7
+      cache_read_input_token_cost: 3.5e-8
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false
