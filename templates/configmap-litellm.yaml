@@ -38,10 +38,12 @@ data:
 {{- $modelInfo := dig "modelInfo" (dict) .Values.wrapperProxyConfigMap }}
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
 {{- $info := index $modelInfo $model }}
+{{- /* toYaml serializes floats like 3e-08 (no mantissa dot) which Python YAML parsers read back as strings; add the dot back */}}
+{{- $infoYAML := regexReplaceAll "(?m)(: )(-?[0-9]+)e(-?[0-9]+)" (toYaml $info) "${1}${2}.0e${3}" }}
       - model_name: "opencode/{{ $model }}"
 {{- with $info }}
         model_info:
-{{ $info | toYaml | indent 10 }}
+{{ $infoYAML | indent 10 }}
 {{- end }}
         litellm_params:
           model: "openai/{{ $model }}"
@@ -54,7 +56,7 @@ data:
       - model_name: "opencode/{{ $model }}"
 {{- with $info }}
         model_info:
-{{ $info | toYaml | indent 10 }}
+{{ $infoYAML | indent 10 }}
 {{- end }}
         litellm_params:
           model: "openai/{{ $model }}"
@@ -66,7 +68,7 @@ data:
       - model_name: "opencode-fallback/{{ $model }}"
 {{- with $info }}
         model_info:
-{{ $info | toYaml | indent 10 }}
+{{ $infoYAML | indent 10 }}
 {{- end }}
         litellm_params:
           model: "openai/{{ $model }}"
