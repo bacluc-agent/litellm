@@ -37,6 +37,7 @@ data:
 {{- end }}
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
 {{- $params := get (default dict $.Values.wrapperProxyConfigMap.opencodeModelParams) $model }}
+{{- if not $params }}{{ fail (printf "no-opencodeModelParams-entry-for-model-%q" $model) }}{{- end }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
