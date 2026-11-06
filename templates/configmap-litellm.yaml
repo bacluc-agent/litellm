@@ -36,7 +36,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
-{{- $params := get (default dict $.Values.wrapperProxyConfigMap.modelParams) $model }}
+{{- $params := get (default dict $.Values.wrapperProxyConfigMap.opencodeModelParams) $model }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
