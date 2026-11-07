@@ -7,10 +7,10 @@ type: application
 version: 0.1.1
 
 # renovate: datasource=docker depName=ghcr.io/berriai/litellm
-appVersion: "1.106.2@sha256:7294b90f868c5c38c99b83021c7ba46f9b439e95f8e32964c925c7d2563a03f7"
+appVersion: "v1.108.2@sha256:d8b4ac356743d647a13bb93f45b941fcd5f5354122cfd205948a1b192790389d"
 
 dependencies:
   - name: litellm-helm
-    version: 1.106.2
+    version: 1.108.2
     repository: oci://ghcr.io/berriai
     alias: litellm
