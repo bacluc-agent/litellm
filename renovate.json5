@@ -64,6 +64,8 @@
       "group": {
         "branchTopic": "litellm-{{{newMajor}}}.{{{newMinor}}}.{{{newPatch}}}",
       },
+      // A human-closed per-version PR must never be resurrected (group PRs are
+      // recreated by default, i.e. "immortal").
       "recreateWhen": "never",
       "internalChecksFilter": "flexible",
     }
