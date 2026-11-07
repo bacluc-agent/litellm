@@ -29,6 +29,8 @@ In addition to setting them in the environment pipeline settings they need to be
           api_key: "os.environ/OPENCODE_2_API_KEY"
 ```
 
+Per-model limits and costs for the opencode models (the `model_info` blocks generated from `wrapperProxyConfigMap.opencodeModelInfo` in `values-vshn-llm-routing.yaml`) are copied from LiteLLM's `model_prices_and_context_window.json` (`opencode_go/<model>` entries) — refresh by re-downloading that file and regenerating the block.
+
 ### Namespace
 
 The namespace is created via AppFlow.

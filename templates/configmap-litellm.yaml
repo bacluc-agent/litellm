@@ -1,4 +1,67 @@
 {{- /*If you need templating logic for your model list.*/}}
+{{- /* ModelInfo cost scalars: helm's toYaml re-marshals float64 with Go's shortest 'g' repr and drops the decimal mantissa (3.0e-08 -> 3e-08), which leaves PyYAML (also litellm's config loader) with a string. Re-add ".0" on mantissas that lost it. */}}
+{{- /* (key value): render model_info scalar values. helm's values loader + toYaml turn every int into float64; max_* must stay ints (printf %.0f), *_cost floats keep decimal mantissa so PyYAML parses them as float. */}}
+{{- define "litellm.modelInfoNumber" -}}
+{{- $k := index . 0 -}}
+{{- $v := index . 1 -}}
+{{- if typeIs "float64" $v -}}
+{{- $s := printf "%v" $v -}}
+{{- if hasPrefix "max_" $k -}}
+{{- printf "%.0f" $v -}}
+{{- else if contains "e" $s -}}
+{{- $parts := splitList "e" $s -}}
+{{- $mant := printf "%s" (first $parts) -}}
+{{- if not (contains "." $mant) -}}
+{{- $mant = printf "%s.0" $mant -}}
+{{- end -}}
+{{- $mant }}e{{ last $parts -}}
+{{- else if contains "." $s -}}
+{{- $s -}}
+{{- else -}}
+{{- printf "%s.0" $s -}}
+{{- end -}}
+{{- else -}}
+{{- toYaml $v | trim -}}
+{{- end -}}
+{{- end }}
+{{- define "litellm.modelInfoBlock" -}}
+{{- $mi := index . 1 -}}
+{{- $out := "" -}}
+{{- range $mk, $mv := $mi }}
+{{- $kind := kindOf $mv }}
+{{- if and (eq $kind "slice") (gt (len $mv) 0) (eq (kindOf (first $mv)) "map") }}
+{{- $out = printf "%s          %s:\n" $out $mk }}
+{{- range $item := $mv }}
+{{- $first := true }}
+{{- range $ik, $iv := $item }}
+{{- $sc := include "litellm.modelInfoNumber" (list $ik $iv) }}
+{{- if eq (kindOf $iv) "slice" }}
+{{- $piece := toYaml $iv | indent 14 }}
+{{- if $first }}
+{{- $out = printf "%s          - %s:\n%s\n" $out $ik $piece }}
+{{- else }}
+{{- $out = printf "%s            %s:\n%s\n" $out $ik $piece }}
+{{- end }}
+{{- else }}
+{{- if $first }}
+{{- $out = printf "%s          - %s: %s\n" $out $ik $sc }}
+{{- else }}
+{{- $out = printf "%s            %s: %s\n" $out $ik $sc }}
+{{- end }}
+{{- end }}
+{{- $first = false }}
+{{- end }}
+{{- end }}
+{{- else if eq $kind "slice" }}
+{{- $piece := toYaml $mv | indent 10 }}
+{{- $out = printf "%s          %s:\n%s\n" $out $mk $piece }}
+{{- else }}
+{{- $sc := include "litellm.modelInfoNumber" (list $mk $mv) }}
+{{- $out = printf "%s          %s: %s\n" $out $mk $sc }}
+{{- end }}
+{{- end }}
+{{- trimSuffix "\n" $out }}
+{{- end }}
 {{- if .Values.wrapperProxyConfigMap.create }}
 {{- $config := deepCopy .Values.litellm.proxy_config }}
 {{- if and .Values.litellm.redis.enabled (dig "coordination" "enabled" true .Values.litellm.redis) }}
@@ -36,6 +99,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
+{{- $modelInfo := get (default dict $.Values.wrapperProxyConfigMap.opencodeModelInfo) $model }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
@@ -43,6 +107,10 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+{{- with $modelInfo }}
+        model_info:
+{{ include "litellm.modelInfoBlock" (list "" .) }}
+{{- end }}
 
       # for api key rotation without downtime
       - model_name: "opencode/{{ $model }}"
@@ -52,6 +120,10 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+{{- with $modelInfo }}
+        model_info:
+{{ include "litellm.modelInfoBlock" (list "" .) }}
+{{- end }}
 
       - model_name: "opencode-fallback/{{ $model }}"
         litellm_params:
@@ -60,6 +132,10 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+{{- with $modelInfo }}
+        model_info:
+{{ include "litellm.modelInfoBlock" (list "" .) }}
+{{- end }}
 {{- end }}
     router_settings:
 {{- with $config.router_settings }}
