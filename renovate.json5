@@ -55,6 +55,16 @@
         "litellm-helm",
       ],
       "groupName": "litellm",
+      // One branch per litellm version (renovate/litellm-X.Y.Z) so each PR can
+      // sit out the full minimumReleaseAge and be merged independently,
+      // instead of one shared branch being rewritten on every release.
+      // The docker tag is v-prefixed but the chart version is not, so the
+      // branch topic must not use {{{newValue}}}; newMajor/newMinor/newPatch
+      // are tag-format independent.
+      "group": {
+        "branchTopic": "litellm-{{{newMajor}}}.{{{newMinor}}}.{{{newPatch}}}",
+      },
+      "recreateWhen": "never",
       "internalChecksFilter": "flexible",
     }
   ],
