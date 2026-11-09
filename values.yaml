@@ -82,3 +82,4 @@ enableVSHNPostgreSQL: false
 generatePostgresSecret: true
 wrapperProxyConfigMap:
   create: false
+  opencodeModelParams: {}
