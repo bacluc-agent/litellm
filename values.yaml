@@ -100,10 +100,11 @@ prometheusRule:
             Within the last 30m, requests for {{ $labels.requested_model }} were served by the
             fallback deployment {{ $labels.fallback_model }}. The primary deployment likely
             failed (rate limit, outage, cooldown).
+          severity: info
         LiteLLMFallbackFailed:
           enabled: true
           expr: |
-            sum by (requested_model, fallback_model) (increase(litellm_deployment_failed_fallbacks_total[30m])) > 0
+            sum by (requested_model, fallback_model) (increase(litellm_deployment_failed_fallbacks_total{fallback_model=~".*-fallback.*"}[30m])) > 0
           summary: "LiteLLM fallback for {{ $labels.requested_model }} to {{ $labels.fallback_model }} failed"
           description: >-
             Within the last 30m, falling back from {{ $labels.requested_model }} to
@@ -117,5 +118,6 @@ prometheusRule:
           description: >-
             Within the last 30m, the load balancer cooled down deployment
             {{ $labels.litellm_model_name }} (status {{ $labels.exception_status }}).
+          severity: info
 wrapperProxyConfigMap:
   create: false
