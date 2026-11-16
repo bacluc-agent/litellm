@@ -1,0 +1,24 @@
+env:
+  INGRESS_HOSTS: a,b
+litellm:
+  image:
+    tag: test
+  proxyConfigMap:
+    create: false
+wrapperProxyConfigMap:
+  create: true
+  opencodeModels:
+    - beam-free
+    - model-without-info
+  opencodeModelInfo:
+    beam-free:
+      pricing_provider: opencode_go
+      mode: chat
+      max_input_tokens: 1048576
+      max_output_tokens: 131072
+      input_cost_per_token: 0
+      output_cost_per_token: 0
+      cache_read_input_token_cost: 0
+      supports_function_calling: true
+      supports_reasoning: true
+      supports_vision: false

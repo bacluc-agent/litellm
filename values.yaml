@@ -82,3 +82,5 @@ enableVSHNPostgreSQL: false
 generatePostgresSecret: true
 wrapperProxyConfigMap:
   create: false
+  # per-model opencode capability/pricing data, see values-vshn-llm-routing.yaml for format
+  opencodeModelInfo: {}
