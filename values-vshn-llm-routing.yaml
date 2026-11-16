@@ -30,10 +30,7 @@ wrapperProxyConfigMap:
     - longcat-2.0
     - step-5-preview
     - beam-free
-    - mimo-v2.6-flash
-    - mimo-v2.6-pro
-    - mimo-v2.5
-    - mimo-v2.5-pro
+    - mimo-v2.6-flash-free
     - minimax-m3.1-flash
     - minimax-m3
     #doesn't work yet, needs consent to train on data.
