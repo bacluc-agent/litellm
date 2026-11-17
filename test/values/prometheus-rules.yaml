@@ -1,8 +1,8 @@
 litellm:
   image:
     tag: test
-env:
-  INGRESS_HOSTS: a,b
+  env:
+    INGRESS_HOSTS: a,b
 prometheusRule:
   enabled: true
   labels:

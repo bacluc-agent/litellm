@@ -25,9 +25,9 @@ jobs:
         SECRETS=$(jq -n --arg p 'APPFLOW_' 'env.SECRETS_JSON | fromjson? // {} | with_entries(select(.key | startswith($p)))')
 
         jq -n --arg p 'APPFLOW_' --argjson e "$ENVV" --argjson v "$VARS" --argjson s "$SECRETS" \
-          '{env: ($e + $v + $s + ($e + $v + $s | with_entries(.key |= ltrimstr($p))))}' > "${PWD}/vars.yaml"
+          '{litellm: {env: ($e + $v + $s + ($e + $v + $s | with_entries(.key |= ltrimstr($p))))}}' > "${PWD}/vars.yaml"
 
-        jq '.env | keys' "${PWD}/vars.yaml"
+         jq '.litellm.env | keys' "${PWD}/vars.yaml"
 
         cp "${KUBECONFIG}" ".github-ci.kubeconfig"
         sudo chmod -R o+w $(printf '%s' "$PWD")

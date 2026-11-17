@@ -32,6 +32,21 @@ litellm:
     - runtime-env
   environmentSecrets:
     - runtime-secrets
+  # Environment map consumed by templates/runtime-secrets.yaml,
+  # postgres-secret.yaml and ingress.yaml. Supplied by CI as {litellm: {env: ...}}.
+  env: {}
+  wrapperProxyConfigMap:
+    create: false
+  # Roll the litellm pods whenever the rendered config ConfigMap or the
+  # runtime env/Secrets change. podAnnotations is tpl-rendered by the
+  # subchart, which is why the parent templates are included by their full
+  # template name with a reconstructed parent context here.
+  # shortcut: the dotted paths mirror the parent chart's values layout; when
+  # the parent templates start reading new value paths, mirror them here too.
+  podAnnotations:
+    checksum/config-proxy-configmap: '{{ include "llm-proxy/templates/configmap-litellm.yaml" (dict "Values" (dict "redis" .Values.redis "litellm" (dict "wrapperProxyConfigMap" .Values.wrapperProxyConfigMap "proxy_config" .Values.proxy_config "redis" .Values.redis)) "Release" .Release) | sha256sum }}'
+    checksum/runtime-env: '{{ include "llm-proxy/templates/runtime-env.yaml" . | sha256sum }}'
+    checksum/runtime-secrets: '{{ include "llm-proxy/templates/runtime-secrets.yaml" (dict "Values" (dict "litellm" (dict "env" .Values.env)) "Release" .Release) | sha256sum }}'
 
   replicaCount: 2
   serviceMonitor:
@@ -117,5 +132,3 @@ prometheusRule:
           description: >-
             Within the last 30m, the load balancer cooled down deployment
             {{ $labels.litellm_model_name }} (status {{ $labels.exception_status }}).
-wrapperProxyConfigMap:
-  create: false

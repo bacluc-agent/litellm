@@ -126,6 +126,9 @@ spec:
     metadata:
       annotations:
         checksum/config: 739b58f182e7a423ef89ab93269705aececf55c1e52b79802803e90b8aa7a1db
+        checksum/config-proxy-configmap: '01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b'
+        checksum/runtime-env: 'dd107991c63c43f5099189b1b78fcb5016ec7bc2b95bcfcf12149621297aaabf'
+        checksum/runtime-secrets: '7ac86598249b98fae6e153ac0fad34a6051241c6838061a332ff6f44f5366385'
       labels:
         helm.sh/chart: '###DYNAMIC_FIELD###'
         app.kubernetes.io/name: litellm
@@ -507,7 +510,7 @@ metadata:
     helm.sh/hook: "pre-install,pre-upgrade"
     helm.sh/hook-delete-policy: "before-hook-creation"
     helm.sh/hook-weight: "1"
-    checksum/config: d7811e6d315cf6b71dbadff601a854d6cf5d41e16f4676f5d6af2a638028dc45
+    checksum/config: 273adf7672f61f5c4724edf8b343806b58c4838cbea76cd49a3bd856b643dd64
 spec:
   template:
     metadata:

@@ -9,8 +9,8 @@
   {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
 {{- end }}
 {{- $hosts := .Values.ingress.hosts }}
-{{- if (not .Values.env.INGRESS_HOSTS | empty) }}
-{{- $hosts = (splitList "," .Values.env.INGRESS_HOSTS )}}
+{{- if (not .Values.litellm.env.INGRESS_HOSTS | empty) }}
+{{- $hosts = (splitList "," .Values.litellm.env.INGRESS_HOSTS )}}
 {{- end }}
 {{- $Values := .Values}}
 

@@ -1,5 +1,5 @@
 {{- /*If you need templating logic for your model list.*/}}
-{{- if .Values.wrapperProxyConfigMap.create }}
+{{- if .Values.litellm.wrapperProxyConfigMap.create }}
 {{- $config := deepCopy .Values.litellm.proxy_config }}
 {{- if and .Values.litellm.redis.enabled (dig "coordination" "enabled" true .Values.litellm.redis) }}
 {{- $generalSettings := (get $config "general_settings") | default dict }}
@@ -35,7 +35,7 @@ data:
 {{- with $config.model_list }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-{{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
+{{- range $model := .Values.litellm.wrapperProxyConfigMap.opencodeModels }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
@@ -66,7 +66,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
       fallbacks:
-{{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
+{{- range $model := .Values.litellm.wrapperProxyConfigMap.opencodeModels }}
         - "opencode/{{ $model }}":
             - "opencode-fallback/{{ $model }}"
 {{- end }}
