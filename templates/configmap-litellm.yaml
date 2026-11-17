@@ -35,6 +35,62 @@ data:
 {{- with $config.model_list }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+      - model_name: "chat"
+        litellm_params:
+          model: "openai/deepseek-v4.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "chat+thinking"
+        litellm_params:
+          model: "openai/deepseek-v4-pro"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "web-research"
+        litellm_params:
+          model: "openai/deepseek-v4.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "fast"
+        litellm_params:
+          model: "openai/kimi-k2.7-code"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "coding"
+        litellm_params:
+          model: "openai/deepseek-v4.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "coding+thinking"
+        litellm_params:
+          model: "openai/glm-5.3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "complex-coding"
+        litellm_params:
+          model: "openai/kimi-k3.1-pro"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      - model_name: "embedding"
+        litellm_params:
+          model: "openai/kimi-k2.7-code"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_1_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
       - model_name: "opencode/{{ $model }}"
         litellm_params:
@@ -70,4 +126,44 @@ data:
         - "opencode/{{ $model }}":
             - "opencode-fallback/{{ $model }}"
 {{- end }}
+        - "chat":
+            - "opencode/deepseek-v4.1-flash"
+            - "opencode/deepseek-glm-5.3-flash"
+            - "opencode/kimi-k2.7-code"
+            - "opencode/qwen-3.8-flash"
+            - "opencode/claude-haiku-5-5"
+            - "opencode-fallback/deepseek-v4.1-flash"
+        - "chat+thinking":
+            - "opencode/deepseek-v4-pro"
+            - "opencode/deepseek-glm-5.3"
+            - "opencode/qwen-3.8"
+            - "opencode-fallback/deepseek-v4-pro"
+        - "web-research":
+            - "opencode/kimi-k2.7-code"
+            - "opencode/minimax-m3.1-flash"
+            - "opencode-fallback/kimi-k2.7-code"
+        - "fast":
+            - "opencode/kimi-k2.7-code"
+            - "opencode/minimax-m3.1-flash"
+            - "opencode-fallback/kimi-k2.7-code"
+        - "coding":
+            - "opencode/deepseek-v4.1-flash"
+            - "opencode/deepseek-glm-5.3-flash"
+            - "opencode/kimi-k2.7-code"
+            - "opencode/qwen-3.8-flash"
+            - "opencode/claude-haiku-5-5"
+            - "opencode-fallback/deepseek-v4.1-flash"
+        - "coding+thinking":
+            - "opencode/deepseek-v4-pro"
+            - "opencode/deepseek-glm-5.3"
+            - "opencode/qwen-3.8"
+            - "opencode-fallback/deepseek-v4-pro"
+        - "complex-coding":
+            - "opencode/kimi-k3"
+            - "opencode/kimi-k3.1-pro"
+            - "opencode-fallback/kimi-k3.1-pro"
+        - "embedding":
+            - "opencode/kimi-k2.7-code"
+            - "opencode/minimax-m3.1-flash"
+            - "opencode-fallback/kimi-k2.7-code"
 {{- end }}
