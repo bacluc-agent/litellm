@@ -47,6 +47,8 @@ stringData:
   OPENCODE_1_API_KEY: "test1"
   OPENCODE_2_API_KEY: "test2"
   OPENCODE_3_API_KEY: "test3"
+  OPENCODE_4_API_KEY: "test3"
+  OPENCODE_6_API_KEY: "test3"
 ---
 # Source: llm-proxy/templates/configmap-litellm.yaml
 apiVersion: v1
@@ -124,6 +126,7 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/glm-5.3-flash"
         litellm_params:
           model: "openai/glm-5.3-flash"
@@ -131,7 +134,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/glm-5.3-flash"
         litellm_params:
@@ -140,7 +142,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/glm-5.3-flash"
+        litellm_params:
+          model: "openai/glm-5.3-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/glm-5.3-flash"
+        litellm_params:
+          model: "openai/glm-5.3-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/glm-5.3-flash"
         litellm_params:
           model: "openai/glm-5.3-flash"
@@ -148,6 +165,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/glm-5.3"
         litellm_params:
           model: "openai/glm-5.3"
@@ -155,7 +173,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/glm-5.3"
         litellm_params:
@@ -164,7 +181,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/glm-5.3"
+        litellm_params:
+          model: "openai/glm-5.3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/glm-5.3"
+        litellm_params:
+          model: "openai/glm-5.3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/glm-5.3"
         litellm_params:
           model: "openai/glm-5.3"
@@ -172,6 +204,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/glm-5.2"
         litellm_params:
           model: "openai/glm-5.2"
@@ -179,7 +212,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/glm-5.2"
         litellm_params:
@@ -188,7 +220,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/glm-5.2"
+        litellm_params:
+          model: "openai/glm-5.2"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/glm-5.2"
+        litellm_params:
+          model: "openai/glm-5.2"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/glm-5.2"
         litellm_params:
           model: "openai/glm-5.2"
@@ -196,6 +243,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/claude-haiku-5-5"
         litellm_params:
           model: "openai/claude-haiku-5-5"
@@ -203,7 +251,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/claude-haiku-5-5"
         litellm_params:
@@ -212,7 +259,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/claude-haiku-5-5"
+        litellm_params:
+          model: "openai/claude-haiku-5-5"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/claude-haiku-5-5"
+        litellm_params:
+          model: "openai/claude-haiku-5-5"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/claude-haiku-5-5"
         litellm_params:
           model: "openai/claude-haiku-5-5"
@@ -220,6 +282,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/kimi-k3.1-pro"
         litellm_params:
           model: "openai/kimi-k3.1-pro"
@@ -227,7 +290,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/kimi-k3.1-pro"
         litellm_params:
@@ -236,7 +298,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/kimi-k3.1-pro"
+        litellm_params:
+          model: "openai/kimi-k3.1-pro"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/kimi-k3.1-pro"
+        litellm_params:
+          model: "openai/kimi-k3.1-pro"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/kimi-k3.1-pro"
         litellm_params:
           model: "openai/kimi-k3.1-pro"
@@ -244,6 +321,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/kimi-k3"
         litellm_params:
           model: "openai/kimi-k3"
@@ -251,7 +329,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/kimi-k3"
         litellm_params:
@@ -260,7 +337,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/kimi-k3"
+        litellm_params:
+          model: "openai/kimi-k3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/kimi-k3"
+        litellm_params:
+          model: "openai/kimi-k3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/kimi-k3"
         litellm_params:
           model: "openai/kimi-k3"
@@ -268,6 +360,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/kimi-k2.7-code"
         litellm_params:
           model: "openai/kimi-k2.7-code"
@@ -275,7 +368,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/kimi-k2.7-code"
         litellm_params:
@@ -284,7 +376,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/kimi-k2.7-code"
+        litellm_params:
+          model: "openai/kimi-k2.7-code"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/kimi-k2.7-code"
+        litellm_params:
+          model: "openai/kimi-k2.7-code"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/kimi-k2.7-code"
         litellm_params:
           model: "openai/kimi-k2.7-code"
@@ -292,6 +399,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/longcat-2.0"
         litellm_params:
           model: "openai/longcat-2.0"
@@ -299,7 +407,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/longcat-2.0"
         litellm_params:
@@ -308,7 +415,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/longcat-2.0"
+        litellm_params:
+          model: "openai/longcat-2.0"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/longcat-2.0"
+        litellm_params:
+          model: "openai/longcat-2.0"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/longcat-2.0"
         litellm_params:
           model: "openai/longcat-2.0"
@@ -316,6 +438,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/step-5-preview"
         litellm_params:
           model: "openai/step-5-preview"
@@ -323,7 +446,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/step-5-preview"
         litellm_params:
@@ -332,7 +454,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/step-5-preview"
+        litellm_params:
+          model: "openai/step-5-preview"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/step-5-preview"
+        litellm_params:
+          model: "openai/step-5-preview"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/step-5-preview"
         litellm_params:
           model: "openai/step-5-preview"
@@ -340,6 +477,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/beam-free"
         litellm_params:
           model: "openai/beam-free"
@@ -347,7 +485,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/beam-free"
         litellm_params:
@@ -356,7 +493,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/beam-free"
+        litellm_params:
+          model: "openai/beam-free"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/beam-free"
+        litellm_params:
+          model: "openai/beam-free"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/beam-free"
         litellm_params:
           model: "openai/beam-free"
@@ -364,6 +516,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/mimo-v2.6-flash-free"
         litellm_params:
           model: "openai/mimo-v2.6-flash-free"
@@ -371,7 +524,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/mimo-v2.6-flash-free"
         litellm_params:
@@ -380,7 +532,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/mimo-v2.6-flash-free"
+        litellm_params:
+          model: "openai/mimo-v2.6-flash-free"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/mimo-v2.6-flash-free"
+        litellm_params:
+          model: "openai/mimo-v2.6-flash-free"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/mimo-v2.6-flash-free"
         litellm_params:
           model: "openai/mimo-v2.6-flash-free"
@@ -388,6 +555,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/minimax-m3.1-flash"
         litellm_params:
           model: "openai/minimax-m3.1-flash"
@@ -395,7 +563,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/minimax-m3.1-flash"
         litellm_params:
@@ -404,7 +571,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/minimax-m3.1-flash"
+        litellm_params:
+          model: "openai/minimax-m3.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/minimax-m3.1-flash"
+        litellm_params:
+          model: "openai/minimax-m3.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/minimax-m3.1-flash"
         litellm_params:
           model: "openai/minimax-m3.1-flash"
@@ -412,6 +594,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/minimax-m3"
         litellm_params:
           model: "openai/minimax-m3"
@@ -419,7 +602,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/minimax-m3"
         litellm_params:
@@ -428,7 +610,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/minimax-m3"
+        litellm_params:
+          model: "openai/minimax-m3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/minimax-m3"
+        litellm_params:
+          model: "openai/minimax-m3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/minimax-m3"
         litellm_params:
           model: "openai/minimax-m3"
@@ -436,6 +633,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/qwen3.8-max"
         litellm_params:
           model: "openai/qwen3.8-max"
@@ -443,7 +641,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/qwen3.8-max"
         litellm_params:
@@ -452,7 +649,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/qwen3.8-max"
+        litellm_params:
+          model: "openai/qwen3.8-max"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/qwen3.8-max"
+        litellm_params:
+          model: "openai/qwen3.8-max"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/qwen3.8-max"
         litellm_params:
           model: "openai/qwen3.8-max"
@@ -460,6 +672,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/qwen3.8-flash"
         litellm_params:
           model: "openai/qwen3.8-flash"
@@ -467,7 +680,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/qwen3.8-flash"
         litellm_params:
@@ -476,7 +688,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/qwen3.8-flash"
+        litellm_params:
+          model: "openai/qwen3.8-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/qwen3.8-flash"
+        litellm_params:
+          model: "openai/qwen3.8-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/qwen3.8-flash"
         litellm_params:
           model: "openai/qwen3.8-flash"
@@ -484,6 +711,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/qwen3.7-plus"
         litellm_params:
           model: "openai/qwen3.7-plus"
@@ -491,7 +719,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/qwen3.7-plus"
         litellm_params:
@@ -500,7 +727,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/qwen3.7-plus"
+        litellm_params:
+          model: "openai/qwen3.7-plus"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/qwen3.7-plus"
+        litellm_params:
+          model: "openai/qwen3.7-plus"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/qwen3.7-plus"
         litellm_params:
           model: "openai/qwen3.7-plus"
@@ -508,6 +750,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/deepseek-v4.1-flash"
         litellm_params:
           model: "openai/deepseek-v4.1-flash"
@@ -515,7 +758,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/deepseek-v4.1-flash"
         litellm_params:
@@ -524,7 +766,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/deepseek-v4.1-flash"
+        litellm_params:
+          model: "openai/deepseek-v4.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/deepseek-v4.1-flash"
+        litellm_params:
+          model: "openai/deepseek-v4.1-flash"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/deepseek-v4.1-flash"
         litellm_params:
           model: "openai/deepseek-v4.1-flash"
@@ -532,6 +789,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/deepseek-v4-pro"
         litellm_params:
           model: "openai/deepseek-v4-pro"
@@ -539,7 +797,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/deepseek-v4-pro"
         litellm_params:
@@ -548,7 +805,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/deepseek-v4-pro"
+        litellm_params:
+          model: "openai/deepseek-v4-pro"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/deepseek-v4-pro"
+        litellm_params:
+          model: "openai/deepseek-v4-pro"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/deepseek-v4-pro"
         litellm_params:
           model: "openai/deepseek-v4-pro"
@@ -556,6 +828,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/hy4-preview"
         litellm_params:
           model: "openai/hy4-preview"
@@ -563,7 +836,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/hy4-preview"
         litellm_params:
@@ -572,7 +844,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/hy4-preview"
+        litellm_params:
+          model: "openai/hy4-preview"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/hy4-preview"
+        litellm_params:
+          model: "openai/hy4-preview"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/hy4-preview"
         litellm_params:
           model: "openai/hy4-preview"
@@ -580,6 +867,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+      # for api key rotation without downtime
       - model_name: "opencode/hy3"
         litellm_params:
           model: "openai/hy3"
@@ -587,7 +875,6 @@ data:
           api_key: "os.environ/OPENCODE_1_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
       # for api key rotation without downtime
       - model_name: "opencode/hy3"
         litellm_params:
@@ -596,7 +883,22 @@ data:
           api_key: "os.environ/OPENCODE_2_API_KEY"
           extra_headers:
             x-opencode-session: litellm
-
+      # for api key rotation without downtime
+      - model_name: "opencode/hy3"
+        litellm_params:
+          model: "openai/hy3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_4_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
+      # for api key rotation without downtime
+      - model_name: "opencode/hy3"
+        litellm_params:
+          model: "openai/hy3"
+          api_base: "os.environ/OPENCODE_API_BASE"
+          api_key: "os.environ/OPENCODE_6_API_KEY"
+          extra_headers:
+            x-opencode-session: litellm
       - model_name: "opencode-fallback/hy3"
         litellm_params:
           model: "openai/hy3"

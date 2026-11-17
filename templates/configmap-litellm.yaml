@@ -92,23 +92,20 @@ data:
           extra_headers:
             x-opencode-session: litellm
 {{- range $model := .Values.wrapperProxyConfigMap.opencodeModels }}
-      - model_name: "opencode/{{ $model }}"
-        litellm_params:
-          model: "openai/{{ $model }}"
-          api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_1_API_KEY"
-          extra_headers:
-            x-opencode-session: litellm
 
+{{- range $i, $_ := until (20 | int) }}
+{{- $opencodeKey := printf "OPENCODE_%s_API_KEY" ($i | toString) }}
+{{- if and (ne $i 3) (hasKey $.Values.env $opencodeKey) }}
       # for api key rotation without downtime
       - model_name: "opencode/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
           api_base: "os.environ/OPENCODE_API_BASE"
-          api_key: "os.environ/OPENCODE_2_API_KEY"
+          api_key: "os.environ/{{ $opencodeKey }}"
           extra_headers:
             x-opencode-session: litellm
-
+{{- end }}
+{{- end }}
       - model_name: "opencode-fallback/{{ $model }}"
         litellm_params:
           model: "openai/{{ $model }}"
@@ -116,6 +113,7 @@ data:
           api_key: "os.environ/OPENCODE_3_API_KEY"
           extra_headers:
             x-opencode-session: litellm
+
 {{- end }}
     router_settings:
 {{- with $config.router_settings }}
