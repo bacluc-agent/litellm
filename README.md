@@ -33,3 +33,12 @@ In addition to setting them in the environment pipeline settings they need to be
 
 The namespace is created via AppFlow.
 Once the namespace is created we need to additionally set the label for the [solution-base-monitoring](https://github.com/appuio/component-solution-base-monitoring) and the cluster-monitoring label `openshift.io/cluster-monitoring: "true"`.
+
+## Model abstractions
+
+That the users don't have to think about the model to use,
+and that some common use cases work all the time,
+it is possible to define abstract model names like `chat` or `coding`.
+But then, all these fallbacks would lead to alerts.
+So the pattern for the "catchAll" fallbacks where it is really a problem when they fail is that
+they contain the word "fallback", e.g. `opencode-fallback/glm-5.3`.

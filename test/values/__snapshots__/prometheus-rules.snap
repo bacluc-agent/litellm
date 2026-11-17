@@ -125,7 +125,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 739b58f182e7a423ef89ab93269705aececf55c1e52b79802803e90b8aa7a1db
+        checksum/config: '###DYNAMIC_FIELD###'
       labels:
         helm.sh/chart: '###DYNAMIC_FIELD###'
         app.kubernetes.io/name: litellm
@@ -316,7 +316,7 @@ spec:
         sum by (litellm_model_name) (increase(litellm_deployment_cooled_down_total[30m])) > 0
       for: 5m
       labels:
-        severity: "warning"
+        severity: "info"
         platform_alerts: "true"
         team: ai-services
       annotations:
@@ -324,7 +324,7 @@ spec:
         description: "Within the last 30m, the load balancer cooled down deployment {{ $labels.litellm_model_name }} (status {{ $labels.exception_status }})."
     - alert: "LiteLLMFallbackFailed"
       expr: |
-        sum by (requested_model, fallback_model) (increase(litellm_deployment_failed_fallbacks_total[30m])) > 0
+        sum by (requested_model, fallback_model) (increase(litellm_deployment_failed_fallbacks_total{fallback_model=~".*-fallback.*"}[30m])) > 0
       for: 5m
       labels:
         severity: "warning"
@@ -338,7 +338,7 @@ spec:
         sum by (requested_model, fallback_model) (increase(litellm_deployment_successful_fallbacks_total[30m])) > 0
       for: 5m
       labels:
-        severity: "warning"
+        severity: "info"
         platform_alerts: "true"
         team: ai-services
       annotations:
@@ -507,7 +507,7 @@ metadata:
     helm.sh/hook: "pre-install,pre-upgrade"
     helm.sh/hook-delete-policy: "before-hook-creation"
     helm.sh/hook-weight: "1"
-    checksum/config: d7811e6d315cf6b71dbadff601a854d6cf5d41e16f4676f5d6af2a638028dc45
+    checksum/config: '###DYNAMIC_FIELD###'
 spec:
   template:
     metadata:

@@ -8,7 +8,7 @@ litellm:
     repository: ghcr.io/berriai/litellm
     pullPolicy: IfNotPresent
     # renovate: datasource=docker depName=ghcr.io/berriai/litellm
-    tag: "1.106.2@sha256:7294b90f868c5c38c99b83021c7ba46f9b439e95f8e32964c925c7d2563a03f7"
+    tag: "v1.108.1@sha256:562251f032a0075a5e5a775b8f44aa9f9f1e93d16562892565f29bfa23fbf2f6"
   ingress:
     enabled: false
   serviceAccount:
@@ -100,10 +100,11 @@ prometheusRule:
             Within the last 30m, requests for {{ $labels.requested_model }} were served by the
             fallback deployment {{ $labels.fallback_model }}. The primary deployment likely
             failed (rate limit, outage, cooldown).
+          severity: info
         LiteLLMFallbackFailed:
           enabled: true
           expr: |
-            sum by (requested_model, fallback_model) (increase(litellm_deployment_failed_fallbacks_total[30m])) > 0
+            sum by (requested_model, fallback_model) (increase(litellm_deployment_failed_fallbacks_total{fallback_model=~".*-fallback.*"}[30m])) > 0
           summary: "LiteLLM fallback for {{ $labels.requested_model }} to {{ $labels.fallback_model }} failed"
           description: >-
             Within the last 30m, falling back from {{ $labels.requested_model }} to
@@ -117,5 +118,6 @@ prometheusRule:
           description: >-
             Within the last 30m, the load balancer cooled down deployment
             {{ $labels.litellm_model_name }} (status {{ $labels.exception_status }}).
+          severity: info
 wrapperProxyConfigMap:
   create: false
