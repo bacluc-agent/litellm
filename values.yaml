@@ -119,3 +119,17 @@ prometheusRule:
             {{ $labels.litellm_model_name }} (status {{ $labels.exception_status }}).
 wrapperProxyConfigMap:
   create: false
+configRestart:
+  # Roll the litellm pods after a helm upgrade, but only when the contents of
+  # the watched ConfigMaps/Secrets actually changed (post-install/post-upgrade
+  # hook job comparing a content hash against a marker annotation).
+  deploymentName: ""
+  # renovate: datasource=docker depName=docker.io/bitnamilegacy/kubectl
+  image: docker.io/bitnamilegacy/kubectl:1.29.2-debian-12-r3
+  watch:
+    - configmap/litellm-config
+    - configmap/runtime-env
+    - secret/runtime-secrets
+
+# Environment map consumed by runtime-secrets, postgres-secret and ingress.
+env: {}

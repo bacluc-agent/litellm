@@ -26,6 +26,15 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
 ---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: config-restart
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+---
 # Source: llm-proxy/templates/postgres-secret.yaml
 apiVersion: v1
 kind: Secret
@@ -82,6 +91,32 @@ metadata:
   name: runtime-env
 data:
   OPENCODE_API_BASE: "https://opencode.ai/zen/go/v1"
+---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: config-restart
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "patch"]
+---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: config-restart
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: config-restart
+subjects:
+- kind: ServiceAccount
+  name: config-restart
 ---
 # Source: llm-proxy/charts/litellm/templates/service.yaml
 apiVersion: v1
@@ -523,3 +558,45 @@ spec:
   ttlSecondsAfterFinished: 120
   backoffLimit: 4
   activeDeadlineSeconds: 1800
+---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: config-restart
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: config-restart
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: config-restart
+        image: docker.io/bitnamilegacy/kubectl:1.29.2-debian-12-r3
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        command: ["/bin/sh", "-ec"]
+        args:
+        - "set -eu\n# Roll the deployment when, and only when, the watched ConfigMaps/Secrets\n# changed content since the previous run of this job. The hash is kept as the\n# llm.vshn/config-hash annotation on the deployment itself, which is safe to\n# patch on a running deployment (it does not change the pod template).\nkey=\"llm.vshn/config-hash\"\ncurrent=$(\n  for ref in $WATCH_REFS; do\n    kubectl get \"$ref\" -o jsonpath='{.data}' --ignore-not-found\n  done | sha256sum | cut -d' ' -f1\n)\nprevious=$(kubectl get \"deploy/$DEPLOYMENT_NAME\" -o jsonpath=\"{.metadata.annotations.llm\\.vshn/config-hash}\" --ignore-not-found)\nif [ -n \"$previous\" ] && [ \"$current\" != \"$previous\" ]; then\n  kubectl rollout restart \"deploy/$DEPLOYMENT_NAME\"\nfi\nkubectl annotate \"deploy/$DEPLOYMENT_NAME\" \"$key=$current\" --overwrite\n"
+        env:
+        - name: DEPLOYMENT_NAME
+          value: "test-litellm"
+        - name: WATCH_REFS
+          value: "configmap/litellm-config configmap/runtime-env secret/runtime-secrets"
+    metadata:
+      labels:
+        helm.sh/chart: '###DYNAMIC_FIELD###'
+        app.kubernetes.io/version: '###DYNAMIC_FIELD###'
