@@ -600,3 +600,5 @@ spec:
       labels:
         helm.sh/chart: '###DYNAMIC_FIELD###'
         app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+      annotations:
+        checksum/config: '###DYNAMIC_FIELD###'
