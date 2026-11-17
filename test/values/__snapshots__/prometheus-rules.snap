@@ -125,7 +125,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 739b58f182e7a423ef89ab93269705aececf55c1e52b79802803e90b8aa7a1db
+        checksum/config: '###DYNAMIC_FIELD###'
       labels:
         helm.sh/chart: '###DYNAMIC_FIELD###'
         app.kubernetes.io/name: litellm
