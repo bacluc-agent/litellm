@@ -26,6 +26,15 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
 ---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: config-restart
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+---
 # Source: llm-proxy/templates/postgres-secret.yaml
 apiVersion: v1
 kind: Secret
@@ -82,6 +91,29 @@ metadata:
   name: runtime-env
 data:
   OPENCODE_API_BASE: "https://opencode.ai/zen/go/v1"
+---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: config-restart
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "patch"]
+---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: config-restart
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: config-restart
+subjects:
+- kind: ServiceAccount
+  name: config-restart
 ---
 # Source: llm-proxy/charts/litellm/templates/service.yaml
 apiVersion: v1
@@ -246,6 +278,66 @@ spec:
           - key: config.yaml
             path: "config.yaml"
       terminationGracePeriodSeconds: 90
+---
+# Source: llm-proxy/templates/config-restart.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-restart
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  replicas: 1
+  # Roll the helper one at a time so a config change restarts litellm exactly once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: config-restart
+  template:
+    metadata:
+      annotations:
+        checksum/config-proxy-configmap: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/runtime-env: dd107991c63c43f5099189b1b78fcb5016ec7bc2b95bcfcf12149621297aaabf
+        checksum/runtime-secrets: 7ac86598249b98fae6e153ac0fad34a6051241c6838061a332ff6f44f5366385
+        checksum/config: '###DYNAMIC_FIELD###'
+      labels:
+        app: config-restart
+        helm.sh/chart: '###DYNAMIC_FIELD###'
+        app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+    spec:
+      serviceAccountName: config-restart
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: config-restart
+        image: docker.io/bitnamilegacy/kubectl:1.29.2-debian-12-r3
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        # rollout restart failing (for example the litellm deployment not
+        # existing yet on a fresh install) exits with an error and the
+        # deployment retries the container until it succeeds.
+        command: ["/bin/sh", "-ec"]
+        args:
+        - |
+          kubectl rollout restart "deploy/$DEPLOYMENT_NAME"
+          sleep 365d
+        env:
+        - name: DEPLOYMENT_NAME
+          value: "test-litellm"
 ---
 # Source: llm-proxy/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1

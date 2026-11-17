@@ -1,0 +1,79 @@
+{{- $deployment := .Values.configRestart.deploymentName | default (printf "%s-litellm" .Release.Name) -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: config-restart
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: config-restart
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: config-restart
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: config-restart
+subjects:
+  - kind: ServiceAccount
+    name: config-restart
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-restart
+spec:
+  replicas: 1
+  # Roll the helper one at a time so a config change restarts litellm exactly once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: config-restart
+  template:
+    metadata:
+      annotations:
+        checksum/config-proxy-configmap: {{ include (print $.Template.BasePath "/configmap-litellm.yaml") . | sha256sum }}
+        checksum/runtime-env: {{ include (print $.Template.BasePath "/runtime-env.yaml") . | sha256sum }}
+        checksum/runtime-secrets: {{ include (print $.Template.BasePath "/runtime-secrets.yaml") . | sha256sum }}
+      labels:
+        app: config-restart
+    spec:
+      serviceAccountName: config-restart
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: config-restart
+          image: {{ .Values.configRestart.image }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          # rollout restart failing (for example the litellm deployment not
+          # existing yet on a fresh install) exits with an error and the
+          # deployment retries the container until it succeeds.
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              kubectl rollout restart "deploy/$DEPLOYMENT_NAME"
+              sleep 365d
+          env:
+            - name: DEPLOYMENT_NAME
+              value: {{ $deployment | quote }}

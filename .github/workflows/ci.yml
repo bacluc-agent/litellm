@@ -24,3 +24,6 @@ jobs:
         run: |
           ./scripts/chartsnap.sh
           test -z "$(git status --porcelain -- test)"
+
+      - name: Config-restart helper rolls on config and secret changes
+        run: ./scripts/checksum.sh
