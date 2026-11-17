@@ -1,0 +1,98 @@
+{{- $deployment := .Values.configRestart.deploymentName | default (printf "%s-litellm" .Release.Name) -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: config-restart
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: config-restart
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: config-restart
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: config-restart
+subjects:
+  - kind: ServiceAccount
+    name: config-restart
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-restart
+spec:
+  replicas: 1
+  # Roll the helper one at a time so a config change restarts litellm exactly once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: config-restart
+  template:
+    metadata:
+      annotations:
+        checksum/config-proxy-configmap: {{ include (print $.Template.BasePath "/configmap-litellm.yaml") . | sha256sum }}
+        checksum/runtime-env: {{ include (print $.Template.BasePath "/runtime-env.yaml") . | sha256sum }}
+        checksum/runtime-secrets: {{ include (print $.Template.BasePath "/runtime-secrets.yaml") . | sha256sum }}
+      labels:
+        app: config-restart
+    spec:
+      serviceAccountName: config-restart
+      securityContext:
+        runAsNonRoot: true
+        # registry.k8s.io/kubectl defaults to uid 0; a non-zero uid is required for
+        # runAsNonRoot. kubectl and the projected SA token are readable by any uid.
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        # Hold the pod open with a blocking kubectl watch: registry.k8s.io/kubectl
+        # has no shell/sleep, and the pod must stay running so a (re)start of it,
+        # which fires the initContainer restart below, does not exit immediately.
+        - name: config-restart
+          image: {{ .Values.configRestart.image }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          command: ["/bin/kubectl"]
+          args: ["get", "deploy/{{ $deployment }}", "-w"]
+          env:
+            - name: HOME
+              value: /tmp
+      initContainers:
+        # Restart the litellm deployment each time the helper pod starts. The
+        # pod starts whenever the checksum annotations above change (i.e. the
+        # rendered config/runtime-env/runtime-secrets changed), on a helper
+        # image bump, or on eviction; kubectl uses the mounted ServiceAccount
+        # token automatically. Fails until the litellm deployment exists
+        # (fresh install), then the init container retries until it succeeds.
+        - name: config-restart-run
+          image: {{ .Values.configRestart.image }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          command: ["/bin/kubectl"]
+          args: ["rollout", "restart", "deploy/{{ $deployment }}"]
+          env:
+            - name: HOME
+              value: /tmp

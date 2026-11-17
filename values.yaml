@@ -121,3 +121,21 @@ prometheusRule:
           severity: info
 wrapperProxyConfigMap:
   create: false
+
+# Environment map consumed by runtime-secrets, postgres-secret and ingress
+# (defaults needed for plain helm lint without app-specific values).
+env: {}
+
+configRestart:
+  # Regular deployment whose pod template carries the checksums of the
+  # rendered config ConfigMap, runtime env and runtime Secrets. When any of
+  # them changes, helm applies a changed pod template, the helper pod rolls,
+  # and its init container runs kubectl rollout restart on the litellm
+  # deployment. The helper also restarts (and thus rolls litellm) when its
+  # own image is bumped or it gets evicted: accepted churn, restarts are
+  # harmless and config stays identical.
+  deploymentName: ""
+  # Official Kubernetes project kubectl image (distroless, no shell). It reads
+  # the mounted ServiceAccount token automatically.
+  # renovate: datasource=docker depName=registry.k8s.io/kubectl
+  image: registry.k8s.io/kubectl:v1.33.4
