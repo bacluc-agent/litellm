@@ -23,6 +23,7 @@ dynamicFields:
     jsonPath:
       - /metadata/labels/helm.sh~1chart
       - /metadata/labels/app.kubernetes.io~1version
+      - /metadata/annotations/checksum~1config
       - /spec/template/metadata/labels/helm.sh~1chart
       - /spec/template/metadata/labels/app.kubernetes.io~1version
       - /spec/template/metadata/annotations/checksum~1config

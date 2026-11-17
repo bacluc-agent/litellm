@@ -1375,7 +1375,7 @@ metadata:
     helm.sh/hook: "pre-install,pre-upgrade"
     helm.sh/hook-delete-policy: "before-hook-creation"
     helm.sh/hook-weight: "1"
-    checksum/config: b724009fe64cc83263af19874728e07f3c5d18adbf4329e6b0943bd5669d764e
+    checksum/config: '###DYNAMIC_FIELD###'
 spec:
   template:
     metadata:
