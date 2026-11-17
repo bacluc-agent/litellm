@@ -11,7 +11,7 @@ metadata:
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get", "patch"]
+    verbs: ["get", "list", "watch", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -49,9 +49,15 @@ spec:
       serviceAccountName: config-restart
       securityContext:
         runAsNonRoot: true
+        # registry.k8s.io/kubectl defaults to uid 0; a non-zero uid is required for
+        # runAsNonRoot. kubectl and the projected SA token are readable by any uid.
+        runAsUser: 65532
         seccompProfile:
           type: RuntimeDefault
       containers:
+        # Hold the pod open with a blocking kubectl watch: registry.k8s.io/kubectl
+        # has no shell/sleep, and the pod must stay running so a (re)start of it,
+        # which fires the initContainer restart below, does not exit immediately.
         - name: config-restart
           image: {{ .Values.configRestart.image }}
           securityContext:
@@ -66,14 +72,27 @@ spec:
             limits:
               cpu: 100m
               memory: 128Mi
-          # rollout restart failing (for example the litellm deployment not
-          # existing yet on a fresh install) exits with an error and the
-          # deployment retries the container until it succeeds.
-          command: ["/bin/sh", "-ec"]
-          args:
-            - |
-              kubectl rollout restart "deploy/$DEPLOYMENT_NAME"
-              sleep 365d
+          command: ["/bin/kubectl"]
+          args: ["get", "deploy/{{ $deployment }}", "-w"]
           env:
-            - name: DEPLOYMENT_NAME
-              value: {{ $deployment | quote }}
+            - name: HOME
+              value: /tmp
+      initContainers:
+        # Restart the litellm deployment each time the helper pod starts. The
+        # pod starts whenever the checksum annotations above change (i.e. the
+        # rendered config/runtime-env/runtime-secrets changed), on a helper
+        # image bump, or on eviction; kubectl uses the mounted ServiceAccount
+        # token automatically. Fails until the litellm deployment exists
+        # (fresh install), then the init container retries until it succeeds.
+        - name: config-restart-run
+          image: {{ .Values.configRestart.image }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          command: ["/bin/kubectl"]
+          args: ["rollout", "restart", "deploy/{{ $deployment }}"]
+          env:
+            - name: HOME
+              value: /tmp
